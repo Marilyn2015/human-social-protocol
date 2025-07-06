@@ -1,45 +1,33 @@
-# Human Social Protocol 🌍🧬
+# Human Social Protocol
 
-The **Human Social Protocol** is a decentralized identity verification system designed to ensure that all users interacting within global apps (like World App) are **verifiably human**.
+A decentralized protocol designed to verify that all users are human — without relying on centralized authorities or corporations.
 
-## 🔐 Purpose
+## 🌍 Mission
+Build a globally accessible, censorship-resistant identity layer for the World App and other decentralized platforms.
 
-With the rise of AI, bots, and deepfakes flooding digital platforms, **verifying real human users** is more critical than ever. This protocol aims to create a **universal, privacy-respecting human verification layer** that can be integrated across decentralized apps and platforms.
+## 🔒 Key Features
+- Proof-of-Humanity without government IDs
+- Biometric + Liveness check integration (e.g., face + motion)
+- On-chain or zk-rollup proofs to validate humanity
+- Zero knowledge to protect user privacy
+- Fraud + Sybil resistance using multi-step onboarding
 
-## 🛠️ Tech Stack (Planned / In Progress)
-- Web3 / Blockchain identity primitives
-- Zero Knowledge Proofs (ZKPs)
+## 🚀 Roadmap
+- [x] Set up frontend project structure
+- [ ] Create biometric liveness check (JS + WebRTC)
+- [ ] Build smart contract for on-chain proof
+- [ ] Integrate wallet connection + identity verification
+- [ ] Deploy MVP to testnet
+
+## 🛠 Tech Stack
 - Vite + React (frontend)
-- IPFS / Decentralized storage
+- Solidity / zk-SNARKs / or verifiable credentials (backend)
 - GitHub Actions for CI/CD
+- IPFS / Filecoin for decentralized storage
 
-## 🧠 Vision
+## 💬 Get Involved
+Want to contribute or collab? Open an issue or contact [PhoenixBird83@hotmail.com](mailto:PhoenixBird83@hotmail.com).
 
-Imagine a world where:
-- **Only humans** can vote, comment, and interact in decentralized spaces.
-- AI bots and synthetic identities are **filtered out by default**.
-- You don’t have to sacrifice your privacy to prove your humanity.
-
-We’re building a **protocol**, not a platform — an open infrastructure layer for any decentralized service to integrate.
-
-## 📈 Project Status
-
-> ✅ Initial frontend scaffolded  
-> 🔄 Backend and blockchain layer in design phase  
-> 🧪 Proof-of-humanness models under review
-
-## 🤝 Contributing
-
-If you're interested in:
-- Privacy-preserving identity
-- Web3 authentication
-- Humanity verification
-
-**Pull requests are welcome.** Let’s build the internet’s immune system — together.
-
-## 📜 License
-
-MIT — use it, fork it, improve it, make it better.
 
 ---
 

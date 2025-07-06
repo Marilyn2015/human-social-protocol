@@ -12,3 +12,4 @@ contract HumanProof {
         return verifiedHumans[user];
     }
 }
+

@@ -1,3 +1,7 @@
+git add README.md
+git commit -m "Add project README"
+git push
+
 # Human Social Protocol 🌍🧬
 
 The **Human Social Protocol** is a decentralized identity verification system designed to ensure that all users interacting within global apps (like World App) are **verifiably human**.

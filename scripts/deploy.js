@@ -1,14 +1,16 @@
-import { ethers } from "hardhat";
+js
+const { ethers } = require("hardhat");
 
 async function main() {
-    const HumanProof = await ethers.getContractFactory("HumanProof");
-    const contract = await HumanProof.deploy();
-    await contract.deployed();
+  const Contract = await ethers.getContractFactory("HumanProof.sol"); // change this
+  const contract = await Contract.deploy();
 
-console.log(`✅ Contract deployed to: ${contract.address}`);
+  await contract.deployed();
+
+  console.log(`✅ Contract deployed to: ${contract.address}`);
 }
 
 main().catch((error) => {
-    console.error("❌ Deployment failed:", error);
-    process.exitCode = 1;
+  console.error("❌ Deployment failed:", error);
+  process.exitCode = 1;
 });

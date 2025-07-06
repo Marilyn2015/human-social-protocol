@@ -5,7 +5,7 @@ async function main() {
     const contract = await HumanProof.deploy();
     await contract.deployed();
 
-    console.log(`✅ Contract deployed to: ${contract.address}`);
+console.log(`✅ Contract deployed to: ${contract.address}`);
 }
 
 main().catch((error) => {

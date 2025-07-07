@@ -13,82 +13,16 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      overflow: hidden;
       margin: 0;
     }
 
-    .glitch {
+    h1 {
       font-size: 4rem;
-      font-weight: bold;
-      position: relative;
-    }
-
-    .glitch::before,
-    .glitch::after {
-      content: 'Hash Humanity';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      overflow: hidden;
-      color: #f0f;
-      background: #000;
-      clip: rect(0, 900px, 0, 0);
-    }
-
-    .glitch::before {
-      animation: glitchTop 1s infinite linear alternate-reverse;
-    }
-
-    .glitch::after {
-      color: #0ff;
-      animation: glitchBottom 1s infinite linear alternate-reverse;
-    }
-
-    @keyframes glitchTop {
-      0% {
-        clip: rect(0, 9999px, 0, 0);
-      }
-      20% {
-        clip: rect(0, 9999px, 20px, 0);
-      }
-      40% {
-        clip: rect(0, 9999px, 10px, 0);
-      }
-      60% {
-        clip: rect(0, 9999px, 15px, 0);
-      }
-      80% {
-        clip: rect(0, 9999px, 5px, 0);
-      }
-      100% {
-        clip: rect(0, 9999px, 0, 0);
-      }
-    }
-
-    @keyframes glitchBottom {
-      0% {
-        clip: rect(100px, 9999px, 100px, 0);
-      }
-      20% {
-        clip: rect(80px, 9999px, 120px, 0);
-      }
-      40% {
-        clip: rect(90px, 9999px, 110px, 0);
-      }
-      60% {
-        clip: rect(95px, 9999px, 115px, 0);
-      }
-      80% {
-        clip: rect(85px, 9999px, 105px, 0);
-      }
-      100% {
-        clip: rect(100px, 9999px, 100px, 0);
-      }
+      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
     }
   </style>
 </head>
 <body>
-  <div class="glitch">Hash Humanity</div>
+  <h1>Hash Humanity</h1>
 </body>
 </html>

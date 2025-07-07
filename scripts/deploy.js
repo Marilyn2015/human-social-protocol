@@ -2,7 +2,7 @@ js
 const { ethers } = require("hardhat");
 
 async function main() {
-  const Contract = await ethers.getContractFactory("HumanProof.sol"); // change this
+  const Contract = await ethers.getContractFactory("HumanProof");
   const contract = await Contract.deploy();
 
   await contract.deployed();

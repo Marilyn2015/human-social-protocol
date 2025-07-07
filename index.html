@@ -6,23 +6,55 @@
   <title>Hash Humanity</title>
   <style>
     body {
-      background-color: #000;
-      color: #0ff;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
     }
 
     h1 {
-      font-size: 4rem;
-      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: #00ffd0;
+    }
+
+    p {
+      font-size: 1.25rem;
+      color: #bbbbbb;
+      max-width: 600px;
+      margin: 0 1rem 2rem;
+    }
+
+    .button {
+      background: linear-gradient(90deg, #00ffd0, #0077ff);
+      color: black;
+      padding: 15px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00ffd0;
     }
   </style>
 </head>
 <body>
+
   <h1>Hash Humanity</h1>
+  <p>A decentralized human verification protocol built for the future of identity, privacy, and Web3 trust.</p>
+  <a class="button" href="#get-started">Get Started</a>
+
 </body>
 </html>

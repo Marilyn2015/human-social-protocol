@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Hash Humanity Protocol</title>
-  </head>
-  <body>
-    <h1>It works!</h1>
-    <p>This is the start of something big.</p>
-  </body>
-</html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hash Humanity</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0ff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .glitch {
+      font-size: 4rem;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: 'Hash Humanity';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      overflow: hidden;

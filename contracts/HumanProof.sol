@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract HumanProof {
-    mapping(address => bool) public verified;
+    // contract logic
+}
 
     function verifyHuman(address user) public {
         verified[user] = true;

@@ -1,7 +1,8 @@
-frontend/
-  ├── public/
-  ├── src/
-  │   ├── assets/
-  │   ├── components/
-  │   ├── App.tsx
-  │   └── main.tsx
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 4rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px white;
+  margin-bottom: 2rem;
+  animation: flicker 3s infinite alternate;
+}

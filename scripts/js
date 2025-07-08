@@ -1,18 +1,4 @@
-// 🔁 Generate scrolling hashes
-function generateRandomHash() {
-  const chars = 'abcdef0123456789';
-  let hash = '';
-  for (let i = 0; i < 64; i++) {
-    hash += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return hash;
+function goToLogin() {
+  document.querySelector('.container').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
 }
-
-const hashSpan = document.getElementById('scrolling-hashes');
-let longStream = '';
-
-for (let i = 0; i < 300; i++) {
-  longStream += generateRandomHash() + ' ';
-}
-
-hashSpan.textContent = longStream;

@@ -1,4 +1,4 @@
-/* 🖤 Global Styles */
+/* Base Setup */
 body {
   margin: 0;
   padding: 0;
@@ -12,23 +12,24 @@ body {
   justify-content: center;
 }
 
-/* 🌟 Logo Styling */
+/* Logo / Title Styling */
 .logo {
   font-family: 'DM Serif Display', serif;
   font-size: 5.5rem;
-  text-transform: uppercase;
   letter-spacing: 4px;
+  text-transform: uppercase;
   text-shadow: 0 0 10px #fff;
   margin-bottom: 2.5rem;
   animation: flicker 3s infinite alternate;
 }
 
+/* Flicker Animation for Logo */
 @keyframes flicker {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.85; }
 }
 
-/* 🖱️ Start Button */
+/* Button Styling */
 .start-btn {
   font-family: 'Orbitron', sans-serif;
   font-size: 1.4rem;
@@ -47,7 +48,7 @@ body {
   transform: scale(1.05);
 }
 
-/* 🔐 Login Screen */
+/* Login Screen Styling */
 #login-screen {
   position: absolute;
   top: 0;
@@ -61,5 +62,46 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  text-align
+  text-align: center;
+  z-index: 99;
+  transition: opacity 0.4s ease;
+}
+
+#login-screen.hidden {
+  display: none;
+}
+
+/* Input Styling */
+#login-screen input {
+  font-family: 'Orbitron', sans-serif;
+  padding: 0.9rem;
+  width: 260px;
+  font-size: 1rem;
+  color: #fff;
+  background: transparent;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+#login-screen input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Login Button */
+#login-screen button {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+#login-screen button:hover {
+  transform: scale(1.05);
+}
 

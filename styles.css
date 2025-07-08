@@ -121,7 +121,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   font-size: 6.5rem;
-  color: white;
+  color: red;
   opacity: 0.05;
   z-index: -1;
   pointer-events: none;

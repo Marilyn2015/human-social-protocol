@@ -88,6 +88,25 @@
   <button onclick="submitPost()">Broadcast</button>
 
   <div id="feed"></div>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A",
+    authDomain: "hashhumanity-58b9a.firebaseapp.com",
+    projectId: "hashhumanity-58b9a",
+    storageBucket: "hashhumanity-58b9a.firebasestorage.app",
+    messagingSenderId: "886745899016",
+    appId: "1:886745899016:web:2b0f7e043c2434379d71bd"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 
   <script>
     <!-- Firebase SDKs -->

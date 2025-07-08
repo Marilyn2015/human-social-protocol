@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title># Humanity</title>
+  <title>Hash Humanity</title>
 
   <!-- 💎 Fancy Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap" rel="stylesheet">
@@ -11,7 +11,48 @@
   <!-- 🧼 External Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body/* ---------- HASH STREAM ---------- */
+<body>
+  <!-- 🌟 Title / Logo -->
+  <div class="container">
+    <h1 class="logo">#HashHumanity</h1>
+    <button class="start-btn" onclick="goToLogin()">Start</button>
+  </div>
+
+  <!-- 🔐 Login Interface -->
+  <div id="login-screen" class="hidden">
+    <h2>World ID Login</h2>
+    <input type="text" placeholder="Enter World ID..." />
+    <button>Login</button>
+  </div>
+
+  <!-- ⚙️ JavaScript -->
+  <script src="script.js"></script>
+  <style>
+  /* ---------- BASE LAYOUT ---------- */
+  html,body{margin:0;height:100%;background:#000;font-family:Courier,monospace;overflow:hidden;}
+
+  .content{
+    position:relative;
+    z-index:10; /* stays above the hash rain */
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    color:#fff;
+    text-shadow:0 0 10px #aaa;
+  }
+  .content h1{font-size:4rem;margin:0 0 1.5rem}
+  .content button{
+    padding:.75rem 2rem;
+    font-size:1.1rem;
+    background:transparent;
+    color:#fff;
+    border:2px solid #fff;
+    cursor:pointer;
+  }
+
+  /* ---------- HASH STREAM ---------- */
   #hashStream{
     position:fixed;
     top:0;left:0;
@@ -87,24 +128,8 @@
   }
 </script>
 </body>
-</html>
- >
-  <!-- 🌟 Title / Logo -->
-  <div class="container">
-    <h1 class="logo">#Humanity</h1>
-    <button class="start-btn" onclick="goToLogin()">Start</button>
-  </div>
-
-  <!-- 🔐 Login Interface -->
-  <div id="login-screen" class="hidden">
-    <h2>World ID Login</h2>
-    <input type="text" placeholder="Enter World ID..." />
-    <button>Login</button>
-  </div>
-
-  <!-- ⚙️ JavaScript -->
-  <script src="script.js"></script>
 </body>
- </html>
+</html>
+
 
 

@@ -30,4 +30,111 @@
   <script src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>#HUMANITY</title>
 
+<style>
+  /* ---------- BASE LAYOUT ---------- */
+  html,body{margin:0;height:100%;background:#000;font-family:Courier,monospace;overflow:hidden;}
+
+  .content{
+    position:relative;
+    z-index:10; /* stays above the hash rain */
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    color:#fff;
+    text-shadow:0 0 10px #aaa;
+  }
+  .content h1{font-size:4rem;margin:0 0 1.5rem}
+  .content button{
+    padding:.75rem 2rem;
+    font-size:1.1rem;
+    background:transparent;
+    color:#fff;
+    border:2px solid #fff;
+    cursor:pointer;
+  }
+
+  /* ---------- HASH STREAM ---------- */
+  #hashStream{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    pointer-events:none; /* let clicks pass through */
+    overflow:hidden;
+    z-index:0;
+  }
+  .hash{
+    position:absolute;
+    white-space:nowrap;
+    color:#3c3c3c; /* muted grey so it doesn’t distract */
+    opacity:.12; /* tweak for subtler / louder effect */
+    transform:translateX(100%);
+    animation:slide 25s linear forwards;
+  }
+
+  /* Scrolls an element fully across viewport */
+  @keyframes slide{
+    to{transform:translateX(-100%);}
+  }
+</style>
+</head>
+<body>
+
+  <div id="hashStream"></div>
+
+  <div class="content">
+    <h1>#HUMANITY</h1>
+    <button onclick="start()">Start</button>
+  </div>
+
+<script>
+  /***** CONFIG *****/
+  const SPAWN_EVERY_MS = 500; // lower = busier background
+  const HASH_LEN = 64; // 64-char hex looks like SHA-256
+  const CHARS = 'abcdef0123456789';
+
+  /* Generate one pseudo-hash */
+  function randomHash(){
+    let out='';
+    for(let i=0;i<HASH_LEN;i++){
+      out += CHARS[Math.random()*CHARS.length|0];
+    }
+    return out;
+  }
+
+  /* Spawn & animate a hash line */
+  function spawnHash(){
+    const el = document.createElement('span');
+    el.className = 'hash';
+    el.textContent = randomHash();
+
+    /* random vertical position / size / opacity for variety */
+    el.style.top = Math.random()*100 + 'vh';
+    el.style.fontSize = 14 + Math.random()*18 + 'px';
+    el.style.opacity = .06 + Math.random()*0.12;
+
+    document.getElementById('hashStream').appendChild(el);
+
+    /* scrub node after animation to keep DOM light */
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  /* Kick off continuous stream */
+  for(let i=0;i<30;i++) spawnHash(); // seed screen instantly
+  setInterval(spawnHash, SPAWN_EVERY_MS); // then keep ’em coming
+
+  /* Optional callback for your Start button */
+  function start(){
+    console.log('🔥 Start button clicked');
+    // your app logic here
+  }
+</script>
+</body>
+</html>

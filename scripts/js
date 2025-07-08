@@ -1,9 +1,3 @@
-// 👉 Show login screen
-function goToLogin() {
-  document.querySelector('.container').style.display = 'none';
-  document.getElementById('login-screen').classList.remove('hidden');
-}
-
 // 🔁 Generate scrolling hashes
 function generateRandomHash() {
   const chars = 'abcdef0123456789';

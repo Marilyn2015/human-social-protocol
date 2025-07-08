@@ -104,3 +104,25 @@ body {
 #login-screen button:hover {
   transform: scale(1.05);
 }
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 5.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px #fff;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.hash-symbol {
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 6.5rem;
+  color: white;
+  opacity: 0.05;
+  z-index: -1;
+  pointer-events: none;
+}

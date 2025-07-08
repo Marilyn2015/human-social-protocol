@@ -1,0 +1,9 @@
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 5.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px white;
+  margin-bottom: 2.5rem;
+  animation: flicker 3s infinite alternate;
+}

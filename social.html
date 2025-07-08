@@ -52,37 +52,60 @@
   <div id="feed"></div>
 
   <script>
-    function submitPost() {
-      const msg = document.getElementById("postBox").value.trim();
-      if (!msg) return;
-      const post = {
-        content: msg,
-        author: "0xFAKE1234", // will be replaced later
-        timestamp: new Date().toISOString()
-      };
-      let posts = JSON.parse(localStorage.getItem("posts") || "[]");
-      posts.unshift(post);
-      localStorage.setItem("posts", JSON.stringify(posts));
-      renderFeed();
-      document.getElementById("postBox").value = '';
-    }
+    <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
 
-    function renderFeed() {
-      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
-      const feed = document.getElementById("feed");
-      feed.innerHTML = "";
-      posts.forEach(p => {
-        const el = document.createElement("div");
-        el.className = "post";
-        el.innerHTML = `
-          <div class="meta">${p.author} — ${new Date(p.timestamp).toLocaleString()}</div>
-          <div>${p.content}</div>
-        `;
-        feed.appendChild(el);
-      });
-    }
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "yourproject.firebaseapp.com",
+    projectId: "yourproject-id",
+    storageBucket: "yourproject.appspot.com",
+    messagingSenderId: "xxxxxxxxxxxx",
+    appId: "xxxxxxxxxxxxxx"
+  };
 
+  firebase.initializeApp(AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A);
+  const db = firebase.firestore();
+
+  async function submitPost() {
+    const msg = document.getElementById("postBox").value.trim();
+    if (!msg) return;
+
+    await db.collection("posts").add({
+      content: msg,
+      author: "0xFAKE1234",
+      timestamp: Date.now()
+    });
+
+    document.getElementById("postBox").value = '';
     renderFeed();
+  }
+
+  async function renderFeed() {
+    const snap = await db.collection("posts")
+                         .orderBy("timestamp", "desc")
+                         .get();
+
+    const feed = document.getElementById("feed");
+    feed.innerHTML = "";
+
+    snap.forEach(doc => {
+      const p = doc.data();
+      const el = document.createElement("div");
+      el.className = "post";
+      el.innerHTML = `
+        <div class="meta">${p.author} — ${new Date(p.timestamp).toLocaleString()}</div>
+        <div>${p.content}</div>
+      `;
+      feed.appendChild(el);
+    });
+  }
+
+  renderFeed();
+</script>
+
   </script>
   // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";

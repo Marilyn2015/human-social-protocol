@@ -5,27 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hash Humanity</title>
 
-  <!-- 💎 Fancy Fonts -->
+  <!-- 🖋️ Fancy Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap" rel="stylesheet">
 
-  <!-- 🧼 External Stylesheet -->
+  <!-- 🎨 Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- 🌟 Title / Logo -->
+
+  <!-- 💫 Horizontal Hash Stream (background) -->
+  <div class="horizontal-hash-stream">
+    <span id="scrolling-hashes"></span>
+  </div>
+
+  <!-- 🌟 Main UI -->
   <div class="container">
     <h1 class="logo">#HashHumanity</h1>
     <button class="start-btn" onclick="goToLogin()">Start</button>
   </div>
 
-  <!-- 🔐 Login Interface -->
+  <!-- 🔐 Login Screen (Initially Hidden) -->
   <div id="login-screen" class="hidden">
     <h2>World ID Login</h2>
     <input type="text" placeholder="Enter World ID..." />
     <button>Login</button>
   </div>
 
-  <!-- ⚙️ JavaScript -->
+  <!-- ⚙️ Script -->
   <script src="script.js"></script>
 </body>
 </html>

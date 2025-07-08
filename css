@@ -6,3 +6,26 @@
   margin-bottom: 2rem;
   animation: flicker 3s infinite alternate;
 }
+.start-btn {
+  background: none;
+  border: 2px solid white;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  color: white;
+  letter-spacing: 1px;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-btn:hover {
+  background: white;
+  color: black;
+}
+#login-screen {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}

@@ -5,7 +5,7 @@
   <title>#HUMANITY Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 📦 Libraries for Markdown & Sanitization -->
+  <!-- Markdown & Sanitization libraries -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 
@@ -68,7 +68,7 @@
       padding: 15px;
       margin-bottom: 20px;
       border-radius: 6px;
-      box-shadow: 0 0 10px #0ff1;
+      box-shadow: 0 0 10px #0ff11;
     }
 
     .meta {
@@ -83,176 +83,172 @@
       font-size: 1rem;
       line-height: 1.4;
     }
+
     .hidden {
-  display: none;
-}
+      display: none;
+    }
 
-#create-username-btn {
-  display: block;
-  margin: 0 auto 20px;
-  padding: 10px 24px;
-  background: #000;
-  color: #0ff;
-  border: 1px solid #0ff;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#create-username-btn:hover {
-  background: #0ff;
-  color: #000;
-}
+    #create-username-btn {
+      display: block;
+      margin: 0 auto 20px;
+      padding: 10px 24px;
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-#username-screen {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: #111;
-  padding: 20px;
-  border-radius: 6px;
-  z-index: 100;
-}
+    #create-username-btn:hover {
+      background: #0ff;
+      color: #000;
+    }
 
+    #username-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 6px;
+      z-index: 100;
+      width: 90%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 0 15px #0ff33;
+    }
+
+    #username-screen input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      background: #000;
+      color: #fff;
+      border: 1px solid #0ff;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
   <h1>#HUMANITY</h1>
-<button id="create-username-btn" onclick="showUsernameScreen()">
-  Create Username
-</button>
 
-<div id="username-screen" class="hidden">
-  <h3>Choose Your Username</h3>
-  <input id="usernameInput" type="text" placeholder="e.g. NeoCoder" />
-  <button onclick="saveUsername()">Go</button>
-</div>
+  <!-- Button to trigger username prompt -->
+  <button id="create-username-btn" onclick="showUsernameScreen()">
+    Create Username
+  </button>
 
+  <!-- Username modal -->
+  <div id="username-screen" class="hidden">
+    <h3>Choose Your Username</h3>
+    <input id="usernameInput" type="text" placeholder="e.g. NeoCoder" />
+    <button onclick="saveUsername()">Go</button>
+  </div>
 
+  <!-- Post input -->
   <textarea id="postBox" placeholder="Feed the human feed..."></textarea>
   <button onclick="submitPost()">Share</button>
 
+  <!-- Feed container -->
   <div id="feed"></div>
 
-  <!-- Firebase SDK (Compat) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <script>
-  <script>
-  // Initialize Firebase & Firestore
-  const firebaseConfig = {
-    apiKey:    "AIzaSy…",          // your config
-    authDomain:"hashhumanity-58b9a.firebaseapp.com",
-    projectId: "hashhumanity-58b9a",
-    storageBucket: "hashhumanity-58b9a.appspot.com",
-    messagingSenderId: "886745899016",
-    appId:     "1:886745899016:web:2b07e043c2434379d71bd"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain:        "hashhumanity-58b9a.firebaseapp.com",
+      projectId:         "hashhumanity-58b9a",
+      storageBucket:     "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId:             "1:886745899016:web:2b07e043c2434379d71bd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  // Markdown → HTML + sanitize
-  function formatContent(md) {
-    const dirty = marked.parse(md);
-    return DOMPurify.sanitize(dirty, {
-      ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
-      ALLOWED_ATTR:  ['href','target']
-    });
-  }
+    // Convert Markdown → sanitized HTML
+    function formatContent(md) {
+      const dirty = marked.parse(md);
+      return DOMPurify.sanitize(dirty, {
+        ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
+        ALLOWED_ATTR:  ['href','target']
+      });
+    }
 
-  // Show “Create Username” modal
-  function showUsernameScreen() {
-    document.getElementById('username-screen').classList.remove('hidden');
-  }
+    // Show the username modal
+    function showUsernameScreen() {
+      document.getElementById('username-screen').classList.remove('hidden');
+    }
 
-  // Save chosen handle
-  function saveUsername() {
-    const name = document.getElementById('usernameInput').value.trim();
-    if (!name) return alert('Pick a cool username');
-    localStorage.setItem('h_username', name);
-    document.getElementById('username-screen').classList.add('hidden');
-    renderFeed();
-  }
-
-  // Post with dynamic author
-  async function submitPost() {
-    const username = localStorage.getItem('h_username');
-    if (!username) return showUsernameScreen();
-
-    const raw = document.getElementById('postBox').value.trim();
-    if (!raw) return;
-
-    const html = formatContent(raw);
-    await db.collection('posts').add({
-      content:   html,
-      author:    username,
-      timestamp: Date.now()
-    });
-
-    document.getElementById('postBox').value = '';
-    renderFeed();
-  }
-
-  // Render feed, showing each post’s own author
-  async function renderFeed() {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = '';
-    const snap = await db.collection('posts')
-                         .orderBy('timestamp','desc')
-                         .get();
-
-    snap.forEach(doc => {
-      const { author, content, timestamp } = doc.data();
-      const el = document.createElement('div');
-      el.className = 'post';
-      el.innerHTML = `
-        <div class="meta">
-          <strong>${author}</strong> —
-          ${new Date(timestamp).toLocaleString()}
-        </div>
-        <div class="post-content">${content}</div>
-      `;
-      feed.appendChild(el);
-    });
-  }
-
-  // On load: hide prompt if set, then load posts
-  window.addEventListener('load', () => {
-    if (localStorage.getItem('h_username')) {
+    // Save chosen username to localStorage
+    function saveUsername() {
+      const name = document.getElementById('usernameInput').value.trim();
+      if (!name) {
+        alert('Please enter a username');
+        return;
+      }
+      localStorage.setItem('h_username', name);
       document.getElementById('username-screen').classList.add('hidden');
+      renderFeed();
     }
-    renderFeed();
-  });
-</script>
 
-  <script>
-  // debug helper—remove later
-  function showUsernameScreen() {
-    console.log('🔘 button clicked');
-    document.getElementById('username-screen')
-            .classList.remove('hidden');
-  }
+    // Submit a new post with the stored username
+    async function submitPost() {
+      const username = localStorage.getItem('h_username');
+      if (!username) {
+        showUsernameScreen();
+        return;
+      }
 
-  function saveUsername() {
-    const name = document.getElementById('usernameInput').value.trim();
-    if (!name) return alert('Pick a cool username.');
-    localStorage.setItem('h_username', name);
-    document.getElementById('username-screen')
-            .classList.add('hidden');
-    renderFeed(); // or whatever reloads your posts
-  }
+      const raw = document.getElementById('postBox').value.trim();
+      if (!raw) return;
 
-  // on load, hide if already set
-  window.addEventListener('load', () => {
-    if (localStorage.getItem('h_username')) {
-      document.getElementById('username-screen')
-              .classList.add('hidden');
+      const html = formatContent(raw);
+      await db.collection('posts').add({
+        content:   html,
+        author:    username,
+        timestamp: Date.now()
+      });
+
+      document.getElementById('postBox').value = '';
+      renderFeed();
     }
-  });
-</script>
 
+    // Render the feed from Firestore
+    async function renderFeed() {
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '';
+
+      const snap = await db.collection('posts')
+                           .orderBy('timestamp', 'desc')
+                           .get();
+
+      snap.forEach(doc => {
+        const { author, content, timestamp } = doc.data();
+        const postEl = document.createElement('div');
+        postEl.className = 'post';
+        postEl.innerHTML = `
+          <div class="meta">
+            <strong>${author}</strong> —
+            ${new Date(timestamp).toLocaleString()}
+          </div>
+          <div class="post-content">${content}</div>
+        `;
+        feed.appendChild(postEl);
+      });
+    }
+
+    // On load: hide username prompt if already set, then render feed
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('h_username')) {
+        document.getElementById('username-screen').classList.add('hidden');
+      }
+      renderFeed();
+    });
+  </script>
 </body>
 </html>
-
-
-  

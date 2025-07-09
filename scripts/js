@@ -31,4 +31,3 @@ window.addEventListener('DOMContentLoaded', () => {
   if (saved) {
     document.getElementById('username-screen').classList.add('hidden');
   }
-});

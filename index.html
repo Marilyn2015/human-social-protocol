@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; 
+                 script-src 'self' 'unsafe-inline'; 
+                 style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
+                 font-src https://fonts.gstatic.com; 
+                 connect-src 'none'; 
+                 img-src 'none'; 
+                 frame-ancestors 'none';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title># Humanity</title>
+  <title># HUMANITY</title>
 
   <!-- 💎 Fancy Fonts -->
   <link
@@ -22,19 +30,11 @@
     <button class="start-btn" onclick="start()">Start</button>
   </div>
 
-  <!-- 🔐 Login Interface -->
-  <div id="login-screen" class="hidden">
-    <h2>World ID Login</h2>
-    <input type="text" placeholder="Enter World ID..." />
-    <button>Login</button>
-  </div>
+  <!-- HASH STREAM CONTAINER -->
+  <div id="hashStream"></div>
 
-  <!-- ⚙️ External Script -->
-  <script src="script.js"></script>
-
-  <!-- ---------- INLINE STYLES ---------- -->
+  <!-- INLINE STYLES -->
   <style>
-    /* BASE LAYOUT */
     html, body {
       margin: 0;
       height: 100%;
@@ -42,10 +42,9 @@
       font-family: Courier, monospace;
       overflow: hidden;
     }
-
     .content {
       position: relative;
-      z-index: 10; /* stays above the hash rain */
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -54,13 +53,11 @@
       color: #fff;
       text-shadow: 0 0 10px #aaa;
     }
-
     .content h1 {
       font-size: 4rem;
       margin: 0 0 1.5rem;
     }
-
-    .content button {
+    .content .start-btn {
       padding: .75rem 2rem;
       font-size: 1.1rem;
       background: transparent;
@@ -68,75 +65,69 @@
       border: 2px solid #fff;
       cursor: pointer;
     }
-
-    /* HASH STREAM */
     #hashStream {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none; /* let clicks pass through */
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
       overflow: hidden;
       z-index: 0;
     }
-
     .hash {
       position: absolute;
       white-space: nowrap;
-      color: #eeeeee; /* soft light grey */
-      opacity: .16;     /* visible but subtle */
+      color: #eeeeee;
+      opacity: .16;
       transform: translateX(100%);
       animation: slide 25s linear forwards;
     }
-
     @keyframes slide {
-      to {
-        transform: translateX(-100%);
-      }
+      to { transform: translateX(-100%); }
     }
   </style>
 
-  <!-- HASH RAIN & START REDIRECT SCRIPTS -->
+  <!-- HASH RAIN + REDIRECT SCRIPT -->
   <script>
-    /***** CONFIG *****/
-    const SPAWN_EVERY_MS = 500;      // lower = busier background
-    const HASH_LEN        = 64;     // 64-char hex looks like SHA-256
-    const CHARS           = 'abcdef0123456789';
+    (function(){
+      'use strict';
 
-    function randomHash() {
-      let out = '';
-      for (let i = 0; i < HASH_LEN; i++) {
-        out += CHARS[Math.random() * CHARS.length | 0];
+      const SPAWN_EVERY_MS = 500;    
+      const HASH_LEN        = 64;   
+      const CHARS           = 'abcdef0123456789';
+
+      function randomHash() {
+        let out = '';
+        for (let i = 0; i < HASH_LEN; i++) {
+          out += CHARS[Math.floor(Math.random() * CHARS.length)];
+        }
+        return out;
       }
-      return out;
-    }
 
-    function spawnHash() {
-      const el = document.createElement('span');
-      el.className = 'hash';
-      el.textContent = randomHash();
+      function spawnHash() {
+        const el = document.createElement('span');
+        el.className = 'hash';
+        el.textContent = randomHash();
 
-      // random vertical position / size / opacity for variety
-      el.style.top      = Math.random() * 100 + 'vh';
-      el.style.fontSize = 14 + Math.random() * 18 + 'px';
-      el.style.opacity  = .06 + Math.random() * .12;
+        el.style.top      = Math.random() * 100 + 'vh';
+        el.style.fontSize = 14 + Math.random() * 18 + 'px';
+        el.style.opacity  = 0.06 + Math.random() * 0.12;
 
-      document.getElementById('hashStream').appendChild(el);
-      el.addEventListener('animationend', () => el.remove());
-    }
+        document.getElementById('hashStream').appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
 
-    // seed screen instantly and then keep ’em coming
-    for (let i = 0; i < 30; i++) spawnHash();
-    setInterval(spawnHash, SPAWN_EVERY_MS);
+      for (let i = 0; i < 30; i++) spawnHash();
+      setInterval(spawnHash, SPAWN_EVERY_MS);
 
-    // Optional callback for your Start button
-    function start() {
-      window.location.href = "social.html";
-    }
+      window.start = function() {
+        // no extra login, just go to social.html
+        location.href = 'social.html';
+      };
+    })();
   </script>
 </body>
 </html>
+
 
 
    

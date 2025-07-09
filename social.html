@@ -212,6 +212,73 @@
       document.getElementById('username-screen').classList.add('hidden');
       renderFeed();
     }
+// Show/hide the DM modal
+function showDMModal() {
+  document.getElementById('dm-modal').classList.remove('hidden');
+}
+function closeDMModal() {
+  document.getElementById('dm-modal').classList.add('hidden');
+}
+
+// Send a DM
+async function sendDM() {
+  const from = localStorage.getItem('h_username');
+  if (!from) return showUsernameScreen();
+
+  const to  = document.getElementById('dm-to').value.trim();
+  const raw = document.getElementById('dm-body').value.trim();
+  if (!to || !raw) return alert('Please fill both fields.');
+
+  const content = formatContent(raw);
+  await db.collection('messages').add({
+    from, to, content, timestamp: Date.now()
+  });
+
+  closeDMModal();
+  alert('Message sent to ' + to);
+  document.getElementById('dm-to').value = '';
+  document.getElementById('dm-body').value = '';
+  renderInbox();
+}
+
+// Render the inbox
+async function renderInbox() {
+  const user = localStorage.getItem('h_username');
+  const out  = document.getElementById('inbox');
+  out.innerHTML = '';
+
+  const snap = await db.collection('messages')
+                       .where('to','==',user)
+                       .orderBy('timestamp','desc')
+                       .get();
+
+  if (snap.empty) {
+    out.innerHTML = '<p style="text-align:center;color:#888;">No messages.</p>';
+    return;
+  }
+
+  snap.forEach(doc => {
+    const { from, content, timestamp } = doc.data();
+    const el = document.createElement('div');
+    el.className = 'post';
+    el.innerHTML = `
+      <div class="meta">
+        <strong>${from}</strong> → <strong>${user}</strong>
+        — ${new Date(timestamp).toLocaleString()}
+      </div>
+      <div class="post-content">${content}</div>
+    `;
+    out.appendChild(el);
+  });
+}
+
+// Also load inbox on page load
+window.addEventListener('load', () => {
+  if (localStorage.getItem('h_username')) {
+    renderFeed();
+    renderInbox();
+  }
+});
 
     // Submit a post with dynamic author
     async function submitPost() {

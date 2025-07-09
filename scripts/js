@@ -20,3 +20,15 @@ for (let i = 0; i < 300; i++) {
 }
 
 hashSpan.textContent = longStream;
+// 1) Show the prompt on button click
+function showUsernameScreen() {
+  document.getElementById('username-screen').classList.remove('hidden');
+}
+
+// 2) On page load, auto-hide if name exists
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('h_username');
+  if (saved) {
+    document.getElementById('username-screen').classList.add('hidden');
+  }
+});

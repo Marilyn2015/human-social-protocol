@@ -1,210 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>#HUMANITY Social</title>
-  <style>
-  body {
-    background: #000000;
-    color: #e0e0e0;
-    font-family: 'Courier New', monospace;
-    padding: 40px 20px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title># Humanity</title>
 
-  h1 {
-    text-align: center;
-    color: #ffffff;
-    font-size: 3rem;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
-    margin-bottom: 30px;
-  }
+  <!-- 💎 Fancy Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap"
+    rel="stylesheet"
+  />
 
-  textarea {
-    width: 100%;
-    height: 120px;
-    background: #0a0a0a;
-    color: #ffffff;
-    border: 1px solid #444;
-    padding: 15px;
-    font-size: 1rem;
-    resize: none;
-    box-shadow: inset 0 0 5px #0ff;
-    border-radius: 6px;
-  }
-
-  button {
-    display: block;
-    margin: 15px auto 30px;
-    padding: 12px 28px;
-    font-size: 1rem;
-    font-weight: bold;
-    background: #000;
-    color: #fff;
-    border: 1px solid #0ff;
-    border-radius: 4px;
-    box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-
-  button:hover {
-    background: #0ff;
-    color: #000;
-    box-shadow: 0 0 20px #0ff;
-  }
-
-  .post {
-    background: #111;
-    border: 1px solid #333;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    box-shadow: 0 0 10px #0ff1;
-  }
-
-  .meta {
-    font-size: 0.75rem;
-    color: #888;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .post-content {
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-
-  </style>
+  <!-- 🧼 External Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <h1>#HUMANITY</h1>
+  <!-- 🌟 Title / Logo -->
+  <div class="content">
+    <h1>#HUMANITY</h1>
+    <button class="start-btn" onclick="start()">Start</button>
+  </div>
 
-  <textarea id="postBox" placeholder="What's on your human mind?"></textarea>
-  <button onclick="submitPost()">Broadcast</button>
+  <!-- 🔐 Login Interface -->
+  <div id="login-screen" class="hidden">
+    <h2>World ID Login</h2>
+    <input type="text" placeholder="Enter World ID..." />
+    <button>Login</button>
+  </div>
+
+  <!-- ⚙️ External Script -->
+  <script src="script.js"></script>
+
+  <!-- ---------- INLINE STYLES ---------- -->
+  <style>
+    /* BASE LAYOUT */
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      font-family: Courier, monospace;
+      overflow: hidden;
+    }
+
+    .content {
+      position: relative;
+      z-index: 10; /* stays above the hash rain */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #fff;
+      text-shadow: 0 0 10px #aaa;
+    }
+
+    .content h1 {
+      font-size: 4rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .content button {
+      padding: .75rem 2rem;
+      font-size: 1.1rem;
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    /* HASH STREAM */
+    #hashStream {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* let clicks pass through */
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .hash {
+      position: absolute;
+      white-space: nowrap;
+      color: #eeeeee; /* soft light grey */
+      opacity: .16;     /* visible but subtle */
+      transform: translateX(100%);
+      animation: slide 25s linear forwards;
+    }
+
+    @keyframes slide {
+      to {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+
+  <!-- HASH RAIN & START REDIRECT SCRIPTS -->
   <script>
-  async function submitPost() {
-    const msg = document.getElementById("postBox").value.trim();
-    if (!msg) return;
+    /***** CONFIG *****/
+    const SPAWN_EVERY_MS = 500;      // lower = busier background
+    const HASH_LEN        = 64;     // 64-char hex looks like SHA-256
+    const CHARS           = 'abcdef0123456789';
 
-    await db.collection("posts").add({
-      content: msg,
-      author: "anonymous", // replace later with real login
-      timestamp: Date.now()
-    });
+    function randomHash() {
+      let out = '';
+      for (let i = 0; i < HASH_LEN; i++) {
+        out += CHARS[Math.random() * CHARS.length | 0];
+      }
+      return out;
+    }
 
-    document.getElementById("postBox").value = '';
-    renderFeed(); // this refreshes the post list
-  }
+    function spawnHash() {
+      const el = document.createElement('span');
+      el.className = 'hash';
+      el.textContent = randomHash();
 
-  async function renderFeed() {
-    const feedContainer = document.getElementById("feed");
-    feedContainer.innerHTML = '';
-    
-    const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
-    snapshot.forEach(doc => {
-      const post = doc.data();
-      const div = document.createElement("div");
-      div.className = "post";
-      div.innerHTML = `<div class="meta">${new Date(post.timestamp).toLocaleString()}</div><div class="post-content">${post.content}</div>`;
-      feedContainer.appendChild(div);
-    });
-  }
+      // random vertical position / size / opacity for variety
+      el.style.top      = Math.random() * 100 + 'vh';
+      el.style.fontSize = 14 + Math.random() * 18 + 'px';
+      el.style.opacity  = .06 + Math.random() * .12;
 
-  // Load posts on page load
-  window.onload = renderFeed;
-</script>
+      document.getElementById('hashStream').appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
 
+    // seed screen instantly and then keep ’em coming
+    for (let i = 0; i < 30; i++) spawnHash();
+    setInterval(spawnHash, SPAWN_EVERY_MS);
 
-  <div id="feed"></div>
-  <script type="module">
-
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-</script>
- <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-    authDomain: "hashhumanity-58b9a.firebaseapp.com",
-    projectId: "hashhumanity-58b9a",
-    storageBucket: "hashhumanity-58b9a.appspot.com",
-    messagingSenderId: "886745899016",
-    appId: "1:886745899016:web:2b07e043c2434379d71bd"
-  };
-
-  
-</script>
-
-  <script>
-    <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "yourproject.firebaseapp.com",
-    projectId: "yourproject-id",
-    storageBucket: "yourproject.appspot.com",
-    messagingSenderId: "xxxxxxxxxxxx",
-    appId: "xxxxxxxxxxxxxx"
-  };
-
-  firebase.initializeApp(AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A);
-  const db = firebase.firestore();
-
-  async function submitPost() {
-    const msg = document.getElementById("postBox").value.trim();
-    if (!msg) return;
-
-    await db.collection("posts").add({
-      content: msg,
-      author: "0xFAKE1234",
-      timestamp: Date.now()
-    });
-
-    document.getElementById("postBox").value = '';
-    renderFeed();
-  }
-
-  async function renderFeed() {
-    const snap = await db.collection("posts")
-                         .orderBy("timestamp", "desc")
-                         .get();
-
-    const feed = document.getElementById("feed");
-    feed.innerHTML = "";
-
-    snap.forEach(doc => {
-      const p = doc.data();
-      const el = document.createElement("div");
-      el.className = "post";
-      el.innerHTML = `
-  <div class="meta">${p.author} — ${new Date(p.timestamp).toLocaleString()}</div>
-  <div class="post-content">${p.content}</div>
-`;
-      feed.appendChild(el);
-    });
-  }
-
-  renderFeed();
- 
-
+    // Optional callback for your Start button
+    function start() {
+      window.location.href = "social.html";
+    }
+  </script>
 </body>
 </html>
-   
 
-   
 
    
 

@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>#HUMANITY Profile Setup</title>
+  <title>#HUMANITY Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- reuse your styles from social.html -->
+
   <style>
     body {
       background: #000;
       color: #e0e0e0;
       font-family: 'Courier New', monospace;
       padding: 40px 20px;
-      max-width: 800px;
+      max-width: 600px;
       margin: 0 auto;
       text-align: center;
     }
     h1 { color: #0ff; margin-bottom: 20px; }
-    input, textarea {
+    input, textarea, button {
+      display: block;
       width: 100%;
       max-width: 400px;
       margin: 10px auto;
@@ -29,90 +30,137 @@
     }
     textarea { height: 100px; resize: vertical; }
     button {
-      margin: 20px auto;
-      padding: 12px 28px;
       background: #0ff;
       color: #000;
       border: none;
-      border-radius: 4px;
       cursor: pointer;
     }
-    img {
+    button:hover { background: #0cc; }
+    img.avatar {
       display: block;
-      margin: 10px auto;
-      width: 80px; height:80px;
+      margin: 20px auto;
+      width: 100px;
+      height:100px;
       border-radius:50%;
       object-fit:cover;
       border:2px solid #0ff;
     }
-    a {
+    a.back-link {
       color: #0ff;
       display: block;
       margin-top: 30px;
       text-decoration: none;
     }
+    #viewProfile { display: none; }
   </style>
 </head>
 <body>
-  <h1>Set Up Your Profile</h1>
+  <h1 id="pageTitle">My Profile</h1>
 
-  <label>Username</label>
-  <input id="usernameInput" placeholder="e.g. NeoCoder" />
+  <!-- EDIT MODE -->
+  <div id="editProfile">
+    <label>Username</label>
+    <input id="usernameInput" placeholder="e.g. NeoCoder" />
 
-  <label>Avatar Image URL</label>
-  <input id="avatarURLInput" placeholder="https://..." />
+    <label>Avatar URL</label>
+    <input id="avatarURLInput" placeholder="https://..." />
 
-  <label>Bio</label>
-  <textarea id="bioInput" placeholder="Tell us a bit about yourself…"></textarea>
+    <label>Bio</label>
+    <textarea id="bioInput" placeholder="Tell us about yourself…"></textarea>
 
-  <img id="avatarPreview" src="" class="hidden" />
+    <button id="saveProfileBtn">Save Profile</button>
+  </div>
 
-  <button id="saveProfileBtn">Save Profile</button>
+  <!-- VIEW MODE -->
+  <div id="viewProfile">
+    <h1 id="viewHandle"></h1>
+    <img id="viewAvatar" class="avatar" src="" alt="Avatar" />
+    <p id="viewBio"></p>
+  </div>
 
-  <a href="social.html">← Back to Feed</a>
+  <a href="social.html" class="back-link">← Back to Feed</a>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // On load, prefill inputs if stored
-    window.addEventListener('DOMContentLoaded', () => {
-      const name = localStorage.getItem('h_username') || '';
-      const avatar = localStorage.getItem('h_avatar') || '';
-      const bio = localStorage.getItem('h_bio') || '';
+    // Initialize Firebase
+    const cfg = {
+      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain: "hashhumanity-58b9a.firebaseapp.com",
+      projectId: "hashhumanity-58b9a",
+      storageBucket: "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+    };
+    firebase.initializeApp(cfg);
+    const db = firebase.firestore();
 
-      document.getElementById('usernameInput').value = name;
-      document.getElementById('avatarURLInput').value = avatar;
-      document.getElementById('bioInput').value = bio;
+    // Helpers to show/hide sections
+    const editEl = document.getElementById('editProfile');
+    const viewEl = document.getElementById('viewProfile');
+    const title  = document.getElementById('pageTitle');
+    const params = new URLSearchParams(location.search);
+    const viewed = params.get('user');               // handle from URL
+    const me     = localStorage.getItem('h_username');
 
-      if (avatar) {
-        const img = document.getElementById('avatarPreview');
-        img.src = avatar; img.classList.remove('hidden');
-      }
-    });
+    // VIEW-ONLY mode if ?user=someone and not your own handle
+    if (viewed && viewed !== me) {
+      editEl.style.display = 'none';
+      viewEl.style.display = 'block';
+      title.textContent   = viewed + "'s Profile";
 
-    // Live-preview avatar URL
-    document.getElementById('avatarURLInput')
-      .addEventListener('input', e => {
-        const url = e.target.value.trim();
-        const img = document.getElementById('avatarPreview');
-        if (url) {
-          img.src = url;
-          img.classList.remove('hidden');
-        } else {
-          img.classList.add('hidden');
-        }
-      });
+      // Fetch that user’s profile from Firestore
+      db.collection('users').doc(viewed).get()
+        .then(doc => {
+          const data = doc.data() || {};
+          document.getElementById('viewHandle').textContent = viewed;
+          document.getElementById('viewAvatar').src =
+            data.avatar || 'https://via.placeholder.com/100';
+          document.getElementById('viewBio').textContent =
+            data.bio || 'No bio set.';
+        });
+    }
+    else {
+      // EDIT mode
+      viewEl.style.display = 'none';
+      title.textContent    = 'Set Up Your Profile';
 
-    // Save everything to localStorage
-    document.getElementById('saveProfileBtn')
-      .addEventListener('click', () => {
-        const name = document.getElementById('usernameInput').value.trim();
-        if (!name) return alert('Username is required.');
-        localStorage.setItem('h_username', name);
-        localStorage.setItem('h_avatar',
-          document.getElementById('avatarURLInput').value.trim() || '');
-        localStorage.setItem('h_bio',
-          document.getElementById('bioInput').value.trim() || '');
-        alert('Profile saved!');
-      });
+      // Prefill from localStorage
+      document.getElementById('usernameInput').value = me || '';
+      document.getElementById('avatarURLInput').value = localStorage.getItem('h_avatar') || '';
+      document.getElementById('bioInput').value       = localStorage.getItem('h_bio')    || '';
+
+      // Save handler
+      document.getElementById('saveProfileBtn')
+        .addEventListener('click', async () => {
+
+          const user   = document.getElementById('usernameInput').value.trim();
+          const avatar = document.getElementById('avatarURLInput').value.trim();
+          const bio    = document.getElementById('bioInput').value.trim();
+
+          if (!user) {
+            alert('Username is required.');
+            return;
+          }
+
+          // 1) Store locally
+          localStorage.setItem('h_username', user);
+          localStorage.setItem('h_avatar',   avatar);
+          localStorage.setItem('h_bio',      bio);
+
+          // 2) Persist to Firestore
+          await db.collection('users').doc(user).set({ avatar, bio });
+
+          alert('Profile saved!');
+          // After first save, you can redirect back:
+          // location.href = 'social.html';
+        });
+    }
   </script>
 </body>
 </html>
+
+   >
+

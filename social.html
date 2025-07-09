@@ -5,7 +5,7 @@
   <title>#HUMANITY Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Markdown & Sanitization libraries -->
+  <!-- Markdown & Sanitization -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
 
@@ -18,157 +18,106 @@
       max-width: 800px;
       margin: 0 auto;
     }
-    h1 {
-      text-align: center;
-      color: #fff;
-      font-size: 3rem;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
-      margin-bottom: 10px;
-    }
-    a.profile-link {
+    h1 { text-align: center; color: #fff; }
+    .profile-link {
       display: block;
       text-align: center;
       color: #0ff;
       margin-bottom: 20px;
       text-decoration: none;
     }
-    textarea {
+    textarea, input {
       width: 100%;
-      height: 120px;
       background: #0a0a0a;
       color: #fff;
       border: 1px solid #444;
-      padding: 15px;
-      font-size: 1rem;
-      resize: none;
-      box-shadow: inset 0 0 5px #0ff;
-      border-radius: 6px;
+      padding: 12px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+      border-radius: 4px;
     }
     button {
-      display: block;
-      margin: 15px auto 30px;
-      padding: 12px 28px;
-      font-size: 1rem;
-      font-weight: bold;
+      display: inline-block;
       background: #000;
       color: #fff;
       border: 1px solid #0ff;
       border-radius: 4px;
-      box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
+      padding: 10px 20px;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
+      margin: 5px;
+      box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
+      transition: .2s;
     }
-    button:hover {
-      background: #0ff;
-      color: #000;
-      box-shadow: 0 0 20px #0ff;
-    }
+    button:hover { background: #0ff; color: #000; }
     .post {
       background: #111;
       border: 1px solid #333;
       padding: 15px;
       margin-bottom: 20px;
       border-radius: 6px;
-      box-shadow: 0 0 10px #0ff11;
+      box-shadow: 0 0 5px #0ff11;
     }
     .meta {
-      font-size: 0.75rem;
+      font-size: .75rem;
       color: #888;
       margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
       display: flex;
       align-items: center;
     }
     .meta img {
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       border-radius: 50%;
-      object-fit: cover;
       margin-right: 8px;
       border: 1px solid #0ff;
     }
-    .post-content {
-      font-size: 1rem;
-      line-height: 1.4;
-    }
-    .hidden {
-      display: none;
-    }
-    #create-username-btn {
-      display: block;
-      margin: 0 auto 20px;
-      padding: 10px 24px;
-      background: #000;
-      color: #0ff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #create-username-btn:hover {
-      background: #0ff;
-      color: #000;
-    }
-    #username-screen {
-      position: fixed;
-      top: 50%; left: 50%;
+    .post-content { line-height: 1.4; }
+    .hidden { display: none; }
+
+    /* DM modal */
+    #dm-modal {
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      background: #111;
-      padding: 20px;
-      border-radius: 6px;
-      z-index: 100;
-      width: 90%;
-      max-width: 300px;
-      text-align: center;
-      box-shadow: 0 0 15px #0ff33;
+      background: #111; padding: 20px;
+      border-radius: 6px; z-index: 200;
+      width: 90%; max-width: 300px;
+      box-shadow: 0 0 10px #0ff33;
     }
-    #username-screen input {
-      width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      background: #000;
-      color: #fff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
+    #dm-modal h3 { margin-top: 0; color: #0ff; }
+    #dm-modal .actions { text-align: right; }
   </style>
 </head>
-
 <body>
+
   <h1>#HUMANITY</h1>
   <a href="profile.html" class="profile-link">✏️ Edit Profile</a>
 
-  <button id="create-username-btn" onclick="showUsernameScreen()">
-    Create Username
-  </button>
-
+  <button onclick="showUsernameScreen()">Create Username</button>
   <div id="username-screen" class="hidden">
     <h3>Choose Your Username</h3>
-    <input id="usernameInput" type="text" placeholder="e.g. NeoCoder" />
+    <input id="usernameInput" placeholder="e.g. NeoCoder" />
     <button onclick="saveUsername()">Go</button>
   </div>
 
-  <textarea id="postBox" placeholder="Feed the human feed..."></textarea>
+  <textarea id="postBox" placeholder="Write your post…"></textarea>
   <button onclick="submitPost()">Share</button>
 
   <div id="feed"></div>
-  <!-- …your post input and “Share” button… -->
 
-  <!-- Feed container -->
-  <div id="feed"></div>
+  <!-- Direct Messaging UI -->
+  <button onclick="showDMModal()">✉️ New Message</button>
 
-  <!-- ─── Paste DM HTML here ─── -->
-  <button onclick="showDMModal()" style="…">✉️ New Message</button>
-  <div id="dm-modal" class="hidden" style="…">
-    <!-- modal contents -->
+  <div id="dm-modal" class="hidden">
+    <h3>Send a Message</h3>
+    <input id="dm-to" placeholder="Recipient handle" />
+    <textarea id="dm-body" placeholder="Your message…"></textarea>
+    <div class="actions">
+      <button onclick="closeDMModal()">Cancel</button>
+      <button onclick="sendDM()">Send</button>
+    </div>
   </div>
-  <h2 style="…">Your Inbox</h2>
+
+  <h2 style="color:#0ff; text-align:center;">Your Inbox</h2>
   <div id="inbox"></div>
-  <!-- ─────────────────────────── -->
-  
-  <!-- Firebase SDKs + your main <script> block -->
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -187,113 +136,40 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Convert Markdown → sanitized HTML
+    // Markdown → HTML + sanitize
     function formatContent(md) {
       const dirty = marked.parse(md);
       return DOMPurify.sanitize(dirty, {
-        ALLOWED_TAGS: ['b','i','em','strong','a','code','pre','ul','ol','li'],
-        ALLOWED_ATTR: ['href','target']
+        ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
+        ALLOWED_ATTR:  ['href','target']
       });
     }
 
-    // Show username prompt
+    // Username modal
     function showUsernameScreen() {
       document.getElementById('username-screen').classList.remove('hidden');
     }
-
-    // Save username
     function saveUsername() {
       const name = document.getElementById('usernameInput').value.trim();
-      if (!name) {
-        alert('Please enter a username');
-        return;
-      }
+      if (!name) return alert('Enter a username');
       localStorage.setItem('h_username', name);
       document.getElementById('username-screen').classList.add('hidden');
       renderFeed();
+      renderInbox();
     }
-// Show/hide the DM modal
-function showDMModal() {
-  document.getElementById('dm-modal').classList.remove('hidden');
-}
-function closeDMModal() {
-  document.getElementById('dm-modal').classList.add('hidden');
-}
 
-// Send a DM
-async function sendDM() {
-  const from = localStorage.getItem('h_username');
-  if (!from) return showUsernameScreen();
-
-  const to  = document.getElementById('dm-to').value.trim();
-  const raw = document.getElementById('dm-body').value.trim();
-  if (!to || !raw) return alert('Please fill both fields.');
-
-  const content = formatContent(raw);
-  await db.collection('messages').add({
-    from, to, content, timestamp: Date.now()
-  });
-
-  closeDMModal();
-  alert('Message sent to ' + to);
-  document.getElementById('dm-to').value = '';
-  document.getElementById('dm-body').value = '';
-  renderInbox();
-}
-
-// Render the inbox
-async function renderInbox() {
-  const user = localStorage.getItem('h_username');
-  const out  = document.getElementById('inbox');
-  out.innerHTML = '';
-
-  const snap = await db.collection('messages')
-                       .where('to','==',user)
-                       .orderBy('timestamp','desc')
-                       .get();
-
-  if (snap.empty) {
-    out.innerHTML = '<p style="text-align:center;color:#888;">No messages.</p>';
-    return;
-  }
-
-  snap.forEach(doc => {
-    const { from, content, timestamp } = doc.data();
-    const el = document.createElement('div');
-    el.className = 'post';
-    el.innerHTML = `
-      <div class="meta">
-        <strong>${from}</strong> → <strong>${user}</strong>
-        — ${new Date(timestamp).toLocaleString()}
-      </div>
-      <div class="post-content">${content}</div>
-    `;
-    out.appendChild(el);
-  });
-}
-
-// Also load inbox on page load
-window.addEventListener('load', () => {
-  if (localStorage.getItem('h_username')) {
-    renderFeed();
-    renderInbox();
-  }
-});
-
-    // Submit a post with dynamic author
+    // Public posting
     async function submitPost() {
-      const username = localStorage.getItem('h_username');
-      if (!username) {
-        showUsernameScreen();
-        return;
-      }
+      const user = localStorage.getItem('h_username');
+      if (!user) return showUsernameScreen();
+
       const raw = document.getElementById('postBox').value.trim();
       if (!raw) return;
 
       const html = formatContent(raw);
       await db.collection('posts').add({
         content:   html,
-        author:    username,
+        author:    user,
         timestamp: Date.now()
       });
 
@@ -301,18 +177,16 @@ window.addEventListener('load', () => {
       renderFeed();
     }
 
-    // Render feed with avatar & handle
     async function renderFeed() {
       const feed = document.getElementById('feed');
       feed.innerHTML = '';
-
       const snap = await db.collection('posts')
                            .orderBy('timestamp', 'desc')
                            .get();
-
       snap.forEach(doc => {
         const { author, content, timestamp } = doc.data();
-        const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
+        const avatar = localStorage.getItem('h_avatar') 
+                         || 'https://via.placeholder.com/24';
         const postEl = document.createElement('div');
         postEl.className = 'post';
         postEl.innerHTML = `
@@ -327,17 +201,71 @@ window.addEventListener('load', () => {
       });
     }
 
-    // On load: hide prompt if name exists, then render feed
+    // Direct Messaging
+    function showDMModal() {
+      document.getElementById('dm-modal').classList.remove('hidden');
+    }
+    function closeDMModal() {
+      document.getElementById('dm-modal').classList.add('hidden');
+    }
+    async function sendDM() {
+      const from = localStorage.getItem('h_username');
+      if (!from) return showUsernameScreen();
+
+      const to  = document.getElementById('dm-to').value.trim();
+      const raw = document.getElementById('dm-body').value.trim();
+      if (!to || !raw) return alert('Fill both fields');
+
+      const content = formatContent(raw);
+      await db.collection('messages').add({
+        from,
+        to,
+        content,
+        timestamp: Date.now()
+      });
+
+      closeDMModal();
+      alert(`Sent to ${to}`);
+      document.getElementById('dm-to').value   = '';
+      document.getElementById('dm-body').value = '';
+      renderInbox();
+    }
+
+    async function renderInbox() {
+      const user = localStorage.getItem('h_username');
+      const out  = document.getElementById('inbox');
+      out.innerHTML = '';
+      const snap = await db.collection('messages')
+                           .where('to','==',user)
+                           .orderBy('timestamp','desc')
+                           .get();
+      if (snap.empty) {
+        out.innerHTML = `<p style="text-align:center;color:#888;">No messages.</p>`;
+        return;
+      }
+      snap.forEach(doc => {
+        const { from, content, timestamp } = doc.data();
+        const el = document.createElement('div');
+        el.className = 'post';
+        el.innerHTML = `
+          <div class="meta">
+            <strong>${from}</strong> → <strong>${user}</strong>
+            — ${new Date(timestamp).toLocaleString()}
+          </div>
+          <div class="post-content">${content}</div>
+        `;
+        out.appendChild(el);
+      });
+    }
+
+    // On load, hide username prompt if set, then load feed & inbox
     window.addEventListener('load', () => {
       if (localStorage.getItem('h_username')) {
         document.getElementById('username-screen').classList.add('hidden');
       }
       renderFeed();
+      renderInbox();
     });
   </script>
 </body>
 </html>
-
-
-
- 

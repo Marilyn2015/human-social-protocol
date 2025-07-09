@@ -124,69 +124,83 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
-    // Initialize Firebase
-    const firebaseConfig = {
-      apiKey:            "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain:        "hashhumanity-58b9a.firebaseapp.com",
-      projectId:         "hashhumanity-58b9a",
-      storageBucket:     "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId:             "1:886745899016:web:2b07e043c2434379d71bd"
-    };
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey:            "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+    authDomain:        "hashhumanity-58b9a.firebaseapp.com",
+    projectId:         "hashhumanity-58b9a",
+    storageBucket:     "hashhumanity-58b9a.appspot.com",
+    messagingSenderId: "886745899016",
+    appId:             "1:886745899016:web:2b07e043c2434379d71bd"
+  };
+
+  try {
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  } catch (e) {
+    console.error("🔥 Firebase init failed:", e);
+    alert("Firebase failed to initialize. Check your config.");
+  }
 
-    // Markdown → HTML + sanitize
-    function formatContent(md) {
-      const dirty = marked.parse(md);
-      return DOMPurify.sanitize(dirty, {
-        ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
-        ALLOWED_ATTR:  ['href','target']
-      });
-    }
+  const db = firebase.firestore();
 
-    // Username modal
-    function showUsernameScreen() {
-      document.getElementById('username-screen').classList.remove('hidden');
-    }
-    function saveUsername() {
-      const name = document.getElementById('usernameInput').value.trim();
-      if (!name) return alert('Enter a username');
-      localStorage.setItem('h_username', name);
-      document.getElementById('username-screen').classList.add('hidden');
-      renderFeed();
-      renderInbox();
-    }
+  // Markdown → HTML + sanitize
+  function formatContent(md) {
+    const dirty = marked.parse(md);
+    return DOMPurify.sanitize(dirty, {
+      ALLOWED_TAGS: ['b','i','em','strong','a','code','pre','ul','ol','li'],
+      ALLOWED_ATTR: ['href','target']
+    });
+  }
 
-    // Public posting
-    async function submitPost() {
-      const user = localStorage.getItem('h_username');
-      if (!user) return showUsernameScreen();
+  function showUsernameScreen() {
+    document.getElementById('username-screen').classList.remove('hidden');
+  }
 
-      const raw = document.getElementById('postBox').value.trim();
-      if (!raw) return;
+  function saveUsername() {
+    const name = document.getElementById('usernameInput').value.trim();
+    if (!name) return alert('Enter a username');
+    localStorage.setItem('h_username', name);
+    document.getElementById('username-screen').classList.add('hidden');
+    renderFeed();
+    renderInbox();
+  }
 
-      const html = formatContent(raw);
+  async function submitPost() {
+    const user = localStorage.getItem('h_username');
+    if (!user) return showUsernameScreen();
+
+    const raw = document.getElementById('postBox').value.trim();
+    if (!raw) return;
+
+    const html = formatContent(raw);
+
+    try {
       await db.collection('posts').add({
-        content:   html,
-        author:    user,
+        content: html,
+        author: user,
         timestamp: Date.now()
       });
-
-      document.getElementById('postBox').value = '';
-      renderFeed();
+      console.log(`✅ Post added by ${user}`);
+    } catch (err) {
+      console.error("❌ Failed to submit post:", err);
+      alert("Failed to submit post. Check your internet or Firebase rules.");
+      return;
     }
 
-    async function renderFeed() {
-      const feed = document.getElementById('feed');
-      feed.innerHTML = '';
+    document.getElementById('postBox').value = '';
+    renderFeed();
+  }
+
+  async function renderFeed() {
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    try {
       const snap = await db.collection('posts')
                            .orderBy('timestamp', 'desc')
                            .get();
       snap.forEach(doc => {
         const { author, content, timestamp } = doc.data();
-        const avatar = localStorage.getItem('h_avatar') 
-                         || 'https://via.placeholder.com/24';
+        const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
         const postEl = document.createElement('div');
         postEl.className = 'post';
         postEl.innerHTML = `
@@ -199,50 +213,77 @@
         `;
         feed.appendChild(postEl);
       });
+    } catch (err) {
+      console.error("❌ Error loading feed:", err);
+      feed.innerHTML = `<p style="color:red;">Failed to load posts.</p>`;
+    }
+  }
+
+  function showDMModal() {
+    document.getElementById('dm-modal').classList.remove('hidden');
+  }
+
+  function closeDMModal() {
+    document.getElementById('dm-modal').classList.add('hidden');
+  }
+
+  async function sendDM() {
+    const from = localStorage.getItem('h_username');
+    if (!from) {
+      showUsernameScreen();
+      return;
     }
 
-    // Direct Messaging
-    function showDMModal() {
-      document.getElementById('dm-modal').classList.remove('hidden');
-    }
-    function closeDMModal() {
-      document.getElementById('dm-modal').classList.add('hidden');
-    }
-    async function sendDM() {
-      const from = localStorage.getItem('h_username');
-      if (!from) return showUsernameScreen();
+    const to = document.getElementById('dm-to').value.trim();
+    const raw = document.getElementById('dm-body').value.trim();
 
-      const to  = document.getElementById('dm-to').value.trim();
-      const raw = document.getElementById('dm-body').value.trim();
-      if (!to || !raw) return alert('Fill both fields');
+    if (!to || !raw) {
+      alert("Fill both fields");
+      return;
+    }
 
-      const content = formatContent(raw);
+    const content = formatContent(raw);
+    console.log(`📤 Sending message from ${from} to ${to}`, content);
+
+    try {
       await db.collection('messages').add({
         from,
         to,
         content,
         timestamp: Date.now()
       });
-
-      closeDMModal();
-      alert(`Sent to ${to}`);
-      document.getElementById('dm-to').value   = '';
+      console.log(`✅ Message sent from ${from} to ${to}`);
+      alert(`Message sent to @${to}`);
+      document.getElementById('dm-to').value = '';
       document.getElementById('dm-body').value = '';
+      closeDMModal();
       renderInbox();
+    } catch (err) {
+      console.error("❌ Failed to send message:", err);
+      alert("Message failed to send. Check your Firebase rules or try again.");
+    }
+  }
+
+  async function renderInbox() {
+    const user = localStorage.getItem('h_username');
+    const out = document.getElementById('inbox');
+    out.innerHTML = '';
+    if (!user) {
+      out.innerHTML = `<p style="text-align:center;color:#888;">Set your username to see messages.</p>`;
+      return;
     }
 
-    async function renderInbox() {
-      const user = localStorage.getItem('h_username');
-      const out  = document.getElementById('inbox');
-      out.innerHTML = '';
+    try {
       const snap = await db.collection('messages')
                            .where('to','==',user)
                            .orderBy('timestamp','desc')
                            .get();
+
       if (snap.empty) {
-        out.innerHTML = `<p style="text-align:center;color:#888;">No messages.</p>`;
+        out.innerHTML = `<p style="text-align:center;color:#888;">No messages yet.</p>`;
         return;
       }
+
       snap.forEach(doc => {
         const { from, content, timestamp } = doc.data();
         const el = document.createElement('div');
@@ -256,16 +297,21 @@
         `;
         out.appendChild(el);
       });
+    } catch (err) {
+      console.error("❌ Failed to load inbox:", err);
+      out.innerHTML = `<p style="color:red;">Error loading messages.</p>`;
     }
+  }
 
-    // On load, hide username prompt if set, then load feed & inbox
-    window.addEventListener('load', () => {
-      if (localStorage.getItem('h_username')) {
-        document.getElementById('username-screen').classList.add('hidden');
-      }
-      renderFeed();
-      renderInbox();
-    });
-  </script>
+  // On load
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('h_username')) {
+      document.getElementById('username-screen').classList.add('hidden');
+    }
+    renderFeed();
+    renderInbox();
+  });
+</script>
+
 </body>
 </html>

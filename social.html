@@ -18,16 +18,21 @@
       max-width: 800px;
       margin: 0 auto;
     }
-
     h1 {
       text-align: center;
       color: #fff;
       font-size: 3rem;
       letter-spacing: 2px;
       text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
     }
-
+    a.profile-link {
+      display: block;
+      text-align: center;
+      color: #0ff;
+      margin-bottom: 20px;
+      text-decoration: none;
+    }
     textarea {
       width: 100%;
       height: 120px;
@@ -40,7 +45,6 @@
       box-shadow: inset 0 0 5px #0ff;
       border-radius: 6px;
     }
-
     button {
       display: block;
       margin: 15px auto 30px;
@@ -55,13 +59,11 @@
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
-
     button:hover {
       background: #0ff;
       color: #000;
       box-shadow: 0 0 20px #0ff;
     }
-
     .post {
       background: #111;
       border: 1px solid #333;
@@ -70,24 +72,30 @@
       border-radius: 6px;
       box-shadow: 0 0 10px #0ff11;
     }
-
     .meta {
       font-size: 0.75rem;
       color: #888;
       margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 1px;
+      display: flex;
+      align-items: center;
     }
-
+    .meta img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      border: 1px solid #0ff;
+    }
     .post-content {
       font-size: 1rem;
       line-height: 1.4;
     }
-
     .hidden {
       display: none;
     }
-
     #create-username-btn {
       display: block;
       margin: 0 auto 20px;
@@ -98,27 +106,23 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
     #create-username-btn:hover {
       background: #0ff;
       color: #000;
     }
-
     #username-screen {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: #111;
       padding: 20px;
       border-radius: 6px;
       z-index: 100;
       width: 90%;
-      max-width: 320px;
+      max-width: 300px;
       text-align: center;
       box-shadow: 0 0 15px #0ff33;
     }
-
     #username-screen input {
       width: 100%;
       padding: 8px;
@@ -131,30 +135,24 @@
     }
   </style>
 </head>
+
 <body>
   <h1>#HUMANITY</h1>
-<a href="profile.html" 
-   style="display:block; text-align:center; color:#0ff; margin-bottom:20px;">
-  ✏️ Edit Profile
-</a>
+  <a href="profile.html" class="profile-link">✏️ Edit Profile</a>
 
-  <!-- Button to trigger username prompt -->
   <button id="create-username-btn" onclick="showUsernameScreen()">
     Create Username
   </button>
 
-  <!-- Username modal -->
   <div id="username-screen" class="hidden">
     <h3>Choose Your Username</h3>
     <input id="usernameInput" type="text" placeholder="e.g. NeoCoder" />
     <button onclick="saveUsername()">Go</button>
   </div>
 
-  <!-- Post input -->
   <textarea id="postBox" placeholder="Feed the human feed..."></textarea>
   <button onclick="submitPost()">Share</button>
 
-  <!-- Feed container -->
   <div id="feed"></div>
 
   <!-- Firebase SDKs -->
@@ -178,17 +176,17 @@
     function formatContent(md) {
       const dirty = marked.parse(md);
       return DOMPurify.sanitize(dirty, {
-        ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
-        ALLOWED_ATTR:  ['href','target']
+        ALLOWED_TAGS: ['b','i','em','strong','a','code','pre','ul','ol','li'],
+        ALLOWED_ATTR: ['href','target']
       });
     }
 
-    // Show the username modal
+    // Show username prompt
     function showUsernameScreen() {
       document.getElementById('username-screen').classList.remove('hidden');
     }
 
-    // Save chosen username to localStorage
+    // Save username
     function saveUsername() {
       const name = document.getElementById('usernameInput').value.trim();
       if (!name) {
@@ -200,14 +198,13 @@
       renderFeed();
     }
 
-    // Submit a new post with the stored username
+    // Submit a post with dynamic author
     async function submitPost() {
       const username = localStorage.getItem('h_username');
       if (!username) {
         showUsernameScreen();
         return;
       }
-
       const raw = document.getElementById('postBox').value.trim();
       if (!raw) return;
 
@@ -222,7 +219,7 @@
       renderFeed();
     }
 
-    // Render the feed from Firestore
+    // Render feed with avatar & handle
     async function renderFeed() {
       const feed = document.getElementById('feed');
       feed.innerHTML = '';
@@ -233,24 +230,14 @@
 
       snap.forEach(doc => {
         const { author, content, timestamp } = doc.data();
+        const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
         const postEl = document.createElement('div');
         postEl.className = 'post';
         postEl.innerHTML = `
           <div class="meta">
+            <img src="${avatar}" alt="avatar" />
             <strong>${author}</strong> —
-            ${new Date(timestamp)// grab avatar/bio from localStorage
-const avatar = localStorage.getItem('h_avatar') || 'default-avatar.png';
-const display = `
-  <img src="${avatar}" 
-       style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:8px;" />
-  <strong>${author}</strong>
-  — ${new Date(timestamp).toLocaleString()}
-`;
-el.innerHTML = `
-  <div class="meta">${display}</div>
-  <div class="post-content">${content}</div>
-`;
-()}
+            ${new Date(timestamp).toLocaleString()}
           </div>
           <div class="post-content">${content}</div>
         `;
@@ -258,7 +245,7 @@ el.innerHTML = `
       });
     }
 
-    // On load: hide username prompt if already set, then render feed
+    // On load: hide prompt if name exists, then render feed
     window.addEventListener('load', () => {
       if (localStorage.getItem('h_username')) {
         document.getElementById('username-screen').classList.add('hidden');
@@ -268,3 +255,7 @@ el.innerHTML = `
   </script>
 </body>
 </html>
+
+
+
+ 

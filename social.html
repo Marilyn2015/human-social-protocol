@@ -162,17 +162,39 @@
       });
     }
 
-    async function submitPost() {
-      const raw = document.getElementById("postBox").value.trim();
-      if (!raw) return;
+   // SHOW PROMPT IF NO USERNAME SET
+function showUsernameScreen() {
+  document.getElementById('username-screen')
+          .classList.remove('hidden');
+}
 
-      const html = formatContent(raw);
+// DYNAMIC SUBMIT: Injects each user's handle
+async function submitPost() {
+  // 1) Read their handle
+  const username = localStorage.getItem('h_username');
 
-      await db.collection("posts").add({
-        content: html,
-        author: "anonymous",
-        timestamp: Date.now()
-      });
+  // 2) If none, force them to choose one
+  if (!username) {
+    return showUsernameScreen();
+  }
+
+  // 3) Grab & format the content
+  const raw = document.getElementById('postBox').value.trim();
+  if (!raw) return;
+  const html = formatContent(raw);
+
+  // 4) Write to Firestore with their handle
+  await db.collection('posts').add({
+    content:   html,
+    author:    username,
+    timestamp: Date.now()
+  });
+
+  // 5) Clear textarea & refresh feed
+  document.getElementById('postBox').value = '';
+  renderFeed();
+}
+
 
       document.getElementById("postBox").value = '';
       renderFeed();

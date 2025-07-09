@@ -154,6 +154,21 @@
   <button onclick="submitPost()">Share</button>
 
   <div id="feed"></div>
+  <!-- …your post input and “Share” button… -->
+
+  <!-- Feed container -->
+  <div id="feed"></div>
+
+  <!-- ─── Paste DM HTML here ─── -->
+  <button onclick="showDMModal()" style="…">✉️ New Message</button>
+  <div id="dm-modal" class="hidden" style="…">
+    <!-- modal contents -->
+  </div>
+  <h2 style="…">Your Inbox</h2>
+  <div id="inbox"></div>
+  <!-- ─────────────────────────── -->
+  
+  <!-- Firebase SDKs + your main <script> block -->
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>

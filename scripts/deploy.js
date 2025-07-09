@@ -25,3 +25,10 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('username-screen').classList.add('hidden');
   }
 });
+function saveUsername() {
+  const name = document.getElementById('usernameInput').value.trim();
+  if (!name) return alert('Pick a cool username.');
+  localStorage.setItem('h_username', name);
+  document.getElementById('username-screen').classList.add('hidden');
+  renderFeed();
+}

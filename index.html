@@ -2,114 +2,182 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" 
-        content="default-src 'self'; 
-                 script-src 'self' https://www.gstatic.com https://cdn.jsdelivr.net; 
-                 style-src 'self' https://fonts.googleapis.com; 
-                 font-src https://fonts.gstatic.com; 
-                 connect-src 'self' https://firestore.googleapis.com; 
-                 img-src 'self'; 
-                 frame-ancestors 'none';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title># HUMANITY</title>
-
-  <!-- 💎 Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap" rel="stylesheet">
-
   <style>
-   /* Intro screen (with Start button) */
-.content {
-  position: relative;
-  z-index: 10; /* stays above the hash rain */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #fff;
-  text-shadow: 0 0 10px #aaa;
-}
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
 
-.content h1 {
-  font-size: 4rem;
-  margin: 0 0 1.5rem;
-}
+    .hidden { display: none; }
 
-.content button {
-  padding: .75rem 2rem;
-  font-size: 1.1rem;
-  background: transparent;
-  color: #fff;
-  border: 2px solid #fff;
-  cursor: pointer;
-}
+    #hashStream {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
 
-/* Login screen overlay */
-#login-screen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-}
+    .hash {
+      position: absolute;
+      white-space: nowrap;
+      color: #eeeeee;
+      opacity: 0.16;
+      transform: translateX(100%);
+      animation: slide 25s linear forwards;
+    }
 
-#login-screen input {
-  padding: 10px;
-  font-size: 1rem;
-  margin: 15px 0;
-  border-radius: 4px;
-  border: 1px solid #0ff;
-  background: #111;
-  color: #fff;
-}
+    @keyframes slide {
+      to { transform: translateX(-100%); }
+    }
 
-#login-screen button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background: #000;
-  color: #0ff;
-  border: 1px solid #0ff;
-}
+    .content, #login-screen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      color: #fff;
+      text-shadow: 0 0 10px #aaa;
+    }
 
+    h1 {
+      font-size: 4rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    button {
+      padding: 0.75rem 2rem;
+      font-size: 1.1rem;
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    #login-screen input {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #0ff;
+      background: #111;
+      color: #fff;
+    }
+
+    #login-screen button {
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff;
+    }
+
+    #feed-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #000;
+      color: #e0e0e0;
+      z-index: 15;
+      display: none;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: #0a0a0a;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 15px;
+      font-size: 1rem;
+      resize: none;
+      box-shadow: inset 0 0 5px #0ff;
+      border-radius: 6px;
+    }
+
+    .broadcast {
+      margin: 15px auto 30px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #000;
+      color: #fff;
+      border: 1px solid #0ff;
+      border-radius: 4px;
+      box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .broadcast:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 20px #0ff;
+    }
+
+    .post {
+      background: #111;
+      border: 1px solid #333;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #0ff1;
+    }
+
+    .meta {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .post-content {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
   </style>
 </head>
-
 <body>
+
   <div id="hashStream"></div>
 
-  <!-- Intro -->
-  <div class="screen" id="intro-screen">
+  <div class="content" id="intro-screen">
     <h1>#HUMANITY</h1>
     <button onclick="showLogin()">Start</button>
   </div>
 
-  <!-- Login -->
-  <div class="screen hidden" id="login-screen">
+  <div id="login-screen" class="hidden">
     <h2>World ID Login</h2>
-    <input id="worldId" type="text" placeholder="Enter World ID…" />
+    <input id="worldId" type="text" placeholder="Enter World ID..." />
     <button onclick="login()">Login</button>
   </div>
 
-  <!-- Feed -->
   <div id="feed-screen">
-    <textarea id="postBox" placeholder="Use **bold**, *italic*, or [links](https://)…"></textarea>
+    <textarea id="postBox" placeholder="What's on your human mind?"></textarea>
     <button class="broadcast" onclick="submitPost()">Broadcast</button>
     <div id="feed"></div>
   </div>
 
-  <!-- Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
   <script>
-    /***** FIREBASE SETUP *****/
     const firebaseConfig = {
       apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
@@ -121,7 +189,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    /***** NAVIGATION *****/
     function showLogin() {
       document.getElementById("intro-screen").style.display = "none";
       document.getElementById("login-screen").classList.remove("hidden");
@@ -136,62 +203,45 @@
       renderFeed();
     }
 
-    /***** SANITIZATION & RATE-LIMITING *****/
     function sanitizeInput(str) {
-      return DOMPurify.sanitize(str, {
-        ALLOWED_TAGS: ['b','i','em','strong','a'],
-        ALLOWED_ATTR: ['href','target']
-      });
+      const div = document.createElement("div");
+      div.innerText = str;
+      return div.innerHTML;
     }
 
-    let lastPostTime = 0;
-    const POST_INTERVAL_MS = 5000; // 5-second cooldown
-
     async function submitPost() {
-      const now = Date.now();
-      if (now - lastPostTime < POST_INTERVAL_MS) {
-        return alert("Whoa—slow down. Please wait a few seconds between posts.");
-      }
-
       const rawMsg = document.getElementById("postBox").value.trim();
       if (!rawMsg) return;
-
-      const content = sanitizeInput(rawMsg);
-      const author  = sanitizeInput(localStorage.getItem("user") || "anonymous");
-
+      const msg = sanitizeInput(rawMsg);
+      const author = sanitizeInput(localStorage.getItem("user") || "anonymous");
       await db.collection("posts").add({
-        content, author, timestamp: now
+        content: msg,
+        author: author,
+        timestamp: Date.now()
       });
-
-      lastPostTime = now;
-      document.getElementById("postBox").value = "";
+      document.getElementById("postBox").value = '';
       renderFeed();
     }
 
-    /***** RENDER FEED *****/
     async function renderFeed() {
       const feed = document.getElementById("feed");
       feed.innerHTML = "";
-
-      const snap = await db.collection("posts")
-                           .orderBy("timestamp","desc")
-                           .get();
-
+      const snap = await db.collection("posts").orderBy("timestamp", "desc").get();
       snap.forEach(doc => {
-        const { author, content, timestamp } = doc.data();
+        const post = doc.data();
         const el = document.createElement("div");
         el.className = "post";
         el.innerHTML = `
-          <div class="meta">${author} — ${new Date(timestamp).toLocaleString()}</div>
-          <div class="post-content">${content}</div>
+          <div class="meta">${post.author} — ${new Date(post.timestamp).toLocaleString()}</div>
+          <div class="post-content">${post.content}</div>
         `;
         feed.appendChild(el);
       });
     }
 
-    /***** HASH-RAIN EFFECT *****/
     const CHARS = 'abcdef0123456789';
     const HASH_LEN = 64;
+
     function randomHash() {
       let out = '';
       for (let i = 0; i < HASH_LEN; i++) {
@@ -204,32 +254,26 @@
       const el = document.createElement('span');
       el.className = 'hash';
       el.textContent = randomHash();
-      el.style.top      = Math.random() * 100 + 'vh';
+      el.style.top = Math.random() * 100 + 'vh';
       el.style.fontSize = 14 + Math.random() * 18 + 'px';
-      el.style.opacity  = 0.06 + Math.random() * 0.12;
+      el.style.opacity = 0.06 + Math.random() * 0.12;
       document.getElementById('hashStream').appendChild(el);
       el.addEventListener('animationend', () => el.remove());
     }
 
-    // Kick things off
     for (let i = 0; i < 30; i++) spawnHash();
     setInterval(spawnHash, 500);
-
-    // Developer Reminder:  
-    // Set Firestore rules in Firebase Console to require authentication for writes:
-    // rules_version = '2';
-    // service cloud.firestore {
-    //   match /databases/{database}/documents {
-    //     match /posts/{postId} {
-    //       allow read: if true;
-    //       allow write: if request.auth != null;
-    //     }
-    //   }
-    // }
   </script>
 </body>
 </html>
 
+    
+ 
+    
+   
 
+   
+
+   
 
 

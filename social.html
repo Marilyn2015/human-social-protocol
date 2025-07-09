@@ -83,6 +83,35 @@
       font-size: 1rem;
       line-height: 1.4;
     }
+    .hidden {
+  display: none;
+}
+
+#create-username-btn {
+  display: block;
+  margin: 0 auto 20px;
+  padding: 10px 24px;
+  background: #000;
+  color: #0ff;
+  border: 1px solid #0ff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#create-username-btn:hover {
+  background: #0ff;
+  color: #000;
+}
+
+#username-screen {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  padding: 20px;
+  border-radius: 6px;
+  z-index: 100;
+}
+
   </style>
 </head>
 <body>
@@ -90,6 +119,13 @@
 <button id="create-username-btn" onclick="showUsernameScreen()">
   Create Username
 </button>
+
+<div id="username-screen" class="hidden">
+  <h3>Choose Your Username</h3>
+  <input id="usernameInput" type="text" placeholder="e.g. NeoCoder" />
+  <button onclick="saveUsername()">Go</button>
+</div>
+
 
   <textarea id="postBox" placeholder="Feed the human feed..."></textarea>
   <button onclick="submitPost()">Share</button>
@@ -164,6 +200,32 @@
 
     window.onload = renderFeed;
   </script>
+  <script>
+  // debug helper—remove later
+  function showUsernameScreen() {
+    console.log('🔘 button clicked');
+    document.getElementById('username-screen')
+            .classList.remove('hidden');
+  }
+
+  function saveUsername() {
+    const name = document.getElementById('usernameInput').value.trim();
+    if (!name) return alert('Pick a cool username.');
+    localStorage.setItem('h_username', name);
+    document.getElementById('username-screen')
+            .classList.add('hidden');
+    renderFeed(); // or whatever reloads your posts
+  }
+
+  // on load, hide if already set
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('h_username')) {
+      document.getElementById('username-screen')
+              .classList.add('hidden');
+    }
+  });
+</script>
+
 </body>
 </html>
 

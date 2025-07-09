@@ -1,275 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title># HUMANITY</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>#HUMANITY Social</title>
   <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #000;
-      font-family: 'Courier New', monospace;
-      overflow: hidden;
-    }
+  body {
+    background: #000000;
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
 
-    .hidden { display: none; }
+  h1 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 3rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+    margin-bottom: 30px;
+  }
 
-    #hashStream {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
-    }
+  textarea {
+    width: 100%;
+    height: 120px;
+    background: #0a0a0a;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 15px;
+    font-size: 1rem;
+    resize: none;
+    box-shadow: inset 0 0 5px #0ff;
+    border-radius: 6px;
+  }
 
-    .hash {
-      position: absolute;
-      white-space: nowrap;
-      color: #eeeeee;
-      opacity: 0.16;
-      transform: translateX(100%);
-      animation: slide 25s linear forwards;
-    }
+  button {
+    display: block;
+    margin: 15px auto 30px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #000;
+    color: #fff;
+    border: 1px solid #0ff;
+    border-radius: 4px;
+    box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
 
-    @keyframes slide {
-      to { transform: translateX(-100%); }
-    }
+  button:hover {
+    background: #0ff;
+    color: #000;
+    box-shadow: 0 0 20px #0ff;
+  }
 
-    .content, #login-screen {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      color: #fff;
-      text-shadow: 0 0 10px #aaa;
-    }
+  .post {
+    background: #111;
+    border: 1px solid #333;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #0ff1;
+  }
 
-    h1 {
-      font-size: 4rem;
-      font-family: 'Orbitron', sans-serif;
-    }
+  .meta {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 
-    button {
-      padding: 0.75rem 2rem;
-      font-size: 1.1rem;
-      background: transparent;
-      color: #fff;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
+  .post-content {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
 
-    #login-screen input {
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: 1px solid #0ff;
-      background: #111;
-      color: #fff;
-    }
-
-    #login-screen button {
-      background: #000;
-      color: #0ff;
-      border: 1px solid #0ff;
-    }
-
-    #feed-screen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 40px 20px;
-      max-width: 800px;
-      margin: 0 auto;
-      background: #000;
-      color: #e0e0e0;
-      z-index: 15;
-      display: none;
-    }
-
-    textarea {
-      width: 100%;
-      height: 120px;
-      background: #0a0a0a;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 15px;
-      font-size: 1rem;
-      resize: none;
-      box-shadow: inset 0 0 5px #0ff;
-      border-radius: 6px;
-    }
-
-    .broadcast {
-      margin: 15px auto 30px;
-      padding: 12px 28px;
-      font-size: 1rem;
-      font-weight: bold;
-      background: #000;
-      color: #fff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-      box-shadow: 0 0 10px #0ff, inset 0 0 5px #0ff;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .broadcast:hover {
-      background: #0ff;
-      color: #000;
-      box-shadow: 0 0 20px #0ff;
-    }
-
-    .post {
-      background: #111;
-      border: 1px solid #333;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 10px #0ff1;
-    }
-
-    .meta {
-      font-size: 0.75rem;
-      color: #888;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .post-content {
-      font-size: 1rem;
-      line-height: 1.4;
-    }
   </style>
 </head>
 <body>
+  <h1>#HUMANITY</h1>
 
-  <div id="hashStream"></div>
-
-  <div class="content" id="intro-screen">
-    <h1>#HUMANITY</h1>
-    <button onclick="showLogin()">Start</button>
-  </div>
-
-  <div id="login-screen" class="hidden">
-    <h2>World ID Login</h2>
-    <input id="worldId" type="text" placeholder="Enter World ID..." />
-    <button onclick="login()">Login</button>
-  </div>
-
-  <div id="feed-screen">
-    <textarea id="postBox" placeholder="What's on your human mind?"></textarea>
-    <button class="broadcast" onclick="submitPost()">Broadcast</button>
-    <div id="feed"></div>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <textarea id="postBox" placeholder="What's on your human mind?"></textarea>
+  <button onclick="submitPost()">Broadcast</button>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain: "hashhumanity-58b9a.firebaseapp.com",
-      projectId: "hashhumanity-58b9a",
-      storageBucket: "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  async function submitPost() {
+    const msg = document.getElementById("postBox").value.trim();
+    if (!msg) return;
 
-    function showLogin() {
-      document.getElementById("intro-screen").style.display = "none";
-      document.getElementById("login-screen").classList.remove("hidden");
-    }
+    await db.collection("posts").add({
+      content: msg,
+      author: "anonymous", // replace later with real login
+      timestamp: Date.now()
+    });
 
-    function login() {
-      const user = document.getElementById("worldId").value.trim();
-      if (!user) return alert("Please enter your World ID.");
-      localStorage.setItem("user", user);
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("feed-screen").style.display = "block";
-      renderFeed();
-    }
+    document.getElementById("postBox").value = '';
+    renderFeed(); // this refreshes the post list
+  }
 
-    function sanitizeInput(str) {
+  async function renderFeed() {
+    const feedContainer = document.getElementById("feed");
+    feedContainer.innerHTML = '';
+    
+    const snapshot = await db.collection("posts").orderBy("timestamp", "desc").get();
+    snapshot.forEach(doc => {
+      const post = doc.data();
       const div = document.createElement("div");
-      div.innerText = str;
-      return div.innerHTML;
-    }
+      div.className = "post";
+      div.innerHTML = `<div class="meta">${new Date(post.timestamp).toLocaleString()}</div><div class="post-content">${post.content}</div>`;
+      feedContainer.appendChild(div);
+    });
+  }
 
-    async function submitPost() {
-      const rawMsg = document.getElementById("postBox").value.trim();
-      if (!rawMsg) return;
-      const msg = sanitizeInput(rawMsg);
-      const author = sanitizeInput(localStorage.getItem("user") || "anonymous");
-      await db.collection("posts").add({
-        content: msg,
-        author: author,
-        timestamp: Date.now()
-      });
-      document.getElementById("postBox").value = '';
-      renderFeed();
-    }
+  // Load posts on page load
+  window.onload = renderFeed;
+</script>
 
-    async function renderFeed() {
-      const feed = document.getElementById("feed");
-      feed.innerHTML = "";
-      const snap = await db.collection("posts").orderBy("timestamp", "desc").get();
-      snap.forEach(doc => {
-        const post = doc.data();
-        const el = document.createElement("div");
-        el.className = "post";
-        el.innerHTML = `
-          <div class="meta">${post.author} — ${new Date(post.timestamp).toLocaleString()}</div>
-          <div class="post-content">${post.content}</div>
-        `;
-        feed.appendChild(el);
-      });
-    }
 
-    const CHARS = 'abcdef0123456789';
-    const HASH_LEN = 64;
+  <div id="feed"></div>
+  <script type="module">
 
-    function randomHash() {
-      let out = '';
-      for (let i = 0; i < HASH_LEN; i++) {
-        out += CHARS[Math.random() * CHARS.length | 0];
-      }
-      return out;
-    }
+  };
 
-    function spawnHash() {
-      const el = document.createElement('span');
-      el.className = 'hash';
-      el.textContent = randomHash();
-      el.style.top = Math.random() * 100 + 'vh';
-      el.style.fontSize = 14 + Math.random() * 18 + 'px';
-      el.style.opacity = 0.06 + Math.random() * 0.12;
-      document.getElementById('hashStream').appendChild(el);
-      el.addEventListener('animationend', () => el.remove());
-    }
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+ <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    for (let i = 0; i < 30; i++) spawnHash();
-    setInterval(spawnHash, 500);
-  </script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+    authDomain: "hashhumanity-58b9a.firebaseapp.com",
+    projectId: "hashhumanity-58b9a",
+    storageBucket: "hashhumanity-58b9a.appspot.com",
+    messagingSenderId: "886745899016",
+    appId: "1:886745899016:web:2b07e043c2434379d71bd"
+  };
+
+  
+</script>
+
+  <script>
+    <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "yourproject.firebaseapp.com",
+    projectId: "yourproject-id",
+    storageBucket: "yourproject.appspot.com",
+    messagingSenderId: "xxxxxxxxxxxx",
+    appId: "xxxxxxxxxxxxxx"
+  };
+
+  firebase.initializeApp(AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A);
+  const db = firebase.firestore();
+
+  async function submitPost() {
+    const msg = document.getElementById("postBox").value.trim();
+    if (!msg) return;
+
+    await db.collection("posts").add({
+      content: msg,
+      author: "0xFAKE1234",
+      timestamp: Date.now()
+    });
+
+    document.getElementById("postBox").value = '';
+    renderFeed();
+  }
+
+  async function renderFeed() {
+    const snap = await db.collection("posts")
+                         .orderBy("timestamp", "desc")
+                         .get();
+
+    const feed = document.getElementById("feed");
+    feed.innerHTML = "";
+
+    snap.forEach(doc => {
+      const p = doc.data();
+      const el = document.createElement("div");
+      el.className = "post";
+      el.innerHTML = `
+  <div class="meta">${p.author} — ${new Date(p.timestamp).toLocaleString()}</div>
+  <div class="post-content">${p.content}</div>
+`;
+      feed.appendChild(el);
+    });
+  }
+
+  renderFeed();
+ 
+
 </body>
 </html>
-
-    
- 
-    
    
 
    

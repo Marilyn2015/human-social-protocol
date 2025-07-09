@@ -138,90 +138,93 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <script>
-    // Initialize Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain: "hashhumanity-58b9a.firebaseapp.com",
-      projectId: "hashhumanity-58b9a",
-      storageBucket: "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"
-    };
+  <script>
+  // Initialize Firebase & Firestore
+  const firebaseConfig = {
+    apiKey:    "AIzaSy…",          // your config
+    authDomain:"hashhumanity-58b9a.firebaseapp.com",
+    projectId: "hashhumanity-58b9a",
+    storageBucket: "hashhumanity-58b9a.appspot.com",
+    messagingSenderId: "886745899016",
+    appId:     "1:886745899016:web:2b07e043c2434379d71bd"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // Convert Markdown → HTML + sanitize
-    function formatContent(markdown) {
-      // Convert markdown to HTML
-      const dirty = marked.parse(markdown);
-      // Sanitize the HTML
-      return DOMPurify.sanitize(dirty, {
-        ALLOWED_TAGS: ['b','i','em','strong','a','code','pre','ul','ol','li'],
-        ALLOWED_ATTR: ['href','target']
-      });
-    }
-
-   // SHOW PROMPT IF NO USERNAME SET
-function showUsernameScreen() {
-  document.getElementById('username-screen')
-          .classList.remove('hidden');
-}
-
-// DYNAMIC SUBMIT: Injects each user's handle
-async function submitPost() {
-  // 1) Read their handle
-  const username = localStorage.getItem('h_username');
-
-  // 2) If none, force them to choose one
-  if (!username) {
-    return showUsernameScreen();
+  // Markdown → HTML + sanitize
+  function formatContent(md) {
+    const dirty = marked.parse(md);
+    return DOMPurify.sanitize(dirty, {
+      ALLOWED_TAGS:  ['b','i','em','strong','a','code','pre','ul','ol','li'],
+      ALLOWED_ATTR:  ['href','target']
+    });
   }
 
-  // 3) Grab & format the content
-  const raw = document.getElementById('postBox').value.trim();
-  if (!raw) return;
-  const html = formatContent(raw);
+  // Show “Create Username” modal
+  function showUsernameScreen() {
+    document.getElementById('username-screen').classList.remove('hidden');
+  }
 
-  // 4) Write to Firestore with their handle
-  await db.collection('posts').add({
-    content:   html,
-    author:    username,
-    timestamp: Date.now()
+  // Save chosen handle
+  function saveUsername() {
+    const name = document.getElementById('usernameInput').value.trim();
+    if (!name) return alert('Pick a cool username');
+    localStorage.setItem('h_username', name);
+    document.getElementById('username-screen').classList.add('hidden');
+    renderFeed();
+  }
+
+  // Post with dynamic author
+  async function submitPost() {
+    const username = localStorage.getItem('h_username');
+    if (!username) return showUsernameScreen();
+
+    const raw = document.getElementById('postBox').value.trim();
+    if (!raw) return;
+
+    const html = formatContent(raw);
+    await db.collection('posts').add({
+      content:   html,
+      author:    username,
+      timestamp: Date.now()
+    });
+
+    document.getElementById('postBox').value = '';
+    renderFeed();
+  }
+
+  // Render feed, showing each post’s own author
+  async function renderFeed() {
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    const snap = await db.collection('posts')
+                         .orderBy('timestamp','desc')
+                         .get();
+
+    snap.forEach(doc => {
+      const { author, content, timestamp } = doc.data();
+      const el = document.createElement('div');
+      el.className = 'post';
+      el.innerHTML = `
+        <div class="meta">
+          <strong>${author}</strong> —
+          ${new Date(timestamp).toLocaleString()}
+        </div>
+        <div class="post-content">${content}</div>
+      `;
+      feed.appendChild(el);
+    });
+  }
+
+  // On load: hide prompt if set, then load posts
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('h_username')) {
+      document.getElementById('username-screen').classList.add('hidden');
+    }
+    renderFeed();
   });
+</script>
 
-  // 5) Clear textarea & refresh feed
-  document.getElementById('postBox').value = '';
-  renderFeed();
-}
-
-
-      document.getElementById("postBox").value = '';
-      renderFeed();
-    }
-
-    async function renderFeed() {
-      const feed = document.getElementById("feed");
-      feed.innerHTML = "";
-
-      const snap = await db.collection("posts")
-                           .orderBy("timestamp", "desc")
-                           .get();
-
-      snap.forEach(doc => {
-        const post = doc.data();
-        const el = document.createElement("div");
-        el.className = "post";
-        el.innerHTML = `
-          <div class="meta">${post.author} — ${new Date(post.timestamp).toLocaleString()}</div>
-          <div class="post-content">${post.content}</div>
-        `;
-        feed.appendChild(el);
-      });
-    }
-
-    window.onload = renderFeed;
-  </script>
   <script>
   // debug helper—remove later
   function showUsernameScreen() {

@@ -238,7 +238,19 @@
         postEl.innerHTML = `
           <div class="meta">
             <strong>${author}</strong> —
-            ${new Date(timestamp).toLocaleString()}
+            ${new Date(timestamp)// grab avatar/bio from localStorage
+const avatar = localStorage.getItem('h_avatar') || 'default-avatar.png';
+const display = `
+  <img src="${avatar}" 
+       style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:8px;" />
+  <strong>${author}</strong>
+  — ${new Date(timestamp).toLocaleString()}
+`;
+el.innerHTML = `
+  <div class="meta">${display}</div>
+  <div class="post-content">${content}</div>
+`;
+()}
           </div>
           <div class="post-content">${content}</div>
         `;

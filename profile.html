@@ -56,6 +56,26 @@
 </head>
 <body>
   <h1 id="pageTitle">My Profile</h1>
+  <!-- AUTH CONTROLS -->
+  <button id="showRegisterBtn">Register</button>
+  <button id="showLoginBtn">Login</button>
+
+  <!-- REGISTER Modal -->
+  <div id="registerModal" class="hidden">
+    <input id="regEmail"    type="email"    placeholder="Email">
+    <input id="regPassword" type="password" placeholder="Password">
+    <input id="regUsername" type="text"     placeholder="Display Name">
+    <button id="doRegister">Create Account</button>
+    <button onclick="closeModal('registerModal')">Cancel</button>
+  </div>
+
+  <!-- LOGIN Modal -->
+  <div id="loginModal" class="hidden">
+    <input id="loginEmail"    type="email"    placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <button id="doLogin">Login</button>
+    <button onclick="closeModal('loginModal')">Cancel</button>
+  </div>
 
   <!-- EDIT MODE -->
   <div id="editProfile">
@@ -83,6 +103,10 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <!-- >>> ADD THIS: Auth SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <script>
     // Initialize Firebase

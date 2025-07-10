@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Log In - #HUMANITY</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -39,13 +39,74 @@
       padding: 10px 20px;
       font-size: 1rem;
       cursor: pointer;
+      margin-top: 10px;
     }
     button:hover {
       background: #0ff;
       color: #000;
     }
+    .error {
+      color: #f66;
+      margin-top: 10px;
+      height: 1.2em;
+    }
   </style>
 </head>
 <body>
+
   <h1>Log In to #HUMANITY</h1>
-  <input type="email" placeholder="Email" id="email" />
+
+  <input type="email"    id="email"    placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button id="loginBtn">Log In</button>
+  <div class="error" id="errorMsg"></div>
+
+  <script>
+    // 1) Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain: "hashhumanity-58b9a.firebaseapp.com",
+      projectId: "hashhumanity-58b9a",
+      storageBucket: "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 2) Grab elements
+    const emailEl    = document.getElementById('email');
+    const passEl     = document.getElementById('password');
+    const loginBtn   = document.getElementById('loginBtn');
+    const errorMsgEl = document.getElementById('errorMsg');
+
+    // 3) Login handler
+    loginBtn.addEventListener('click', () => {
+      const email = emailEl.value.trim();
+      const pass  = passEl.value.trim();
+      errorMsgEl.textContent = '';
+
+      if (!email || !pass) {
+        errorMsgEl.textContent = 'Email & password are required.';
+        return;
+      }
+
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(() => {
+          // Redirect to your feed after successful login
+          window.location.href = 'social.html';
+        })
+        .catch(err => {
+          errorMsgEl.textContent = err.message;
+        });
+    });
+
+    // 4) If already logged in, go straight to feed
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'social.html';
+      }
+    });
+  </script>
+</body>
+</html>

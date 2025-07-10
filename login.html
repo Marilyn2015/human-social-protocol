@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Log In - #HUMANITY</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In - #HUMANITY</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <style>
     body {
       background: #000;
       color: #fff;
-      font-family: Orbitron, sans-serif;
+      font-family: 'Orbitron', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -20,6 +22,15 @@
     h1 {
       margin-bottom: 20px;
       font-size: 2.5rem;
+    }
+    input[type="email"], input[type="password"] {
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px;
+      margin-bottom: 15px;
+      width: 250px;
+      font-size: 1rem;
     }
     button {
       background: transparent;
@@ -36,7 +47,5 @@
   </style>
 </head>
 <body>
-  <h1>Login to #HUMANITY</h1>
-  <button onclick="alert('Login action goes here')">Sign in with Google</button>
-</body>
-</html>
+  <h1>Log In to #HUMANITY</h1>
+  <input type="email" placeholder="Email" id="email" />

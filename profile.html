@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>#HUMANITY Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
     body {
       background: #000;
@@ -16,6 +15,10 @@
       text-align: center;
     }
     h1 { color: #0ff; margin-bottom: 20px; }
+
+    /* hide/show utility */
+    .hidden { display: none; }
+
     input, textarea, button {
       display: block;
       width: 100%;
@@ -29,6 +32,7 @@
       box-sizing: border-box;
     }
     textarea { height: 100px; resize: vertical; }
+
     button {
       background: #0ff;
       color: #000;
@@ -36,6 +40,7 @@
       cursor: pointer;
     }
     button:hover { background: #0cc; }
+
     img.avatar {
       display: block;
       margin: 20px auto;
@@ -51,16 +56,17 @@
       margin-top: 30px;
       text-decoration: none;
     }
-    #viewProfile { display: none; }
   </style>
 </head>
 <body>
+
   <h1 id="pageTitle">My Profile</h1>
-  <!-- AUTH CONTROLS -->
+
+  <!-- AUTH BUTTONS -->
   <button id="showRegisterBtn">Register</button>
   <button id="showLoginBtn">Login</button>
 
-  <!-- REGISTER Modal -->
+  <!-- REGISTER MODAL -->
   <div id="registerModal" class="hidden">
     <input id="regEmail"    type="email"    placeholder="Email">
     <input id="regPassword" type="password" placeholder="Password">
@@ -69,7 +75,7 @@
     <button onclick="closeModal('registerModal')">Cancel</button>
   </div>
 
-  <!-- LOGIN Modal -->
+  <!-- LOGIN MODAL -->
   <div id="loginModal" class="hidden">
     <input id="loginEmail"    type="email"    placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Password">
@@ -92,7 +98,7 @@
   </div>
 
   <!-- VIEW MODE -->
-  <div id="viewProfile">
+  <div id="viewProfile" class="hidden">
     <h1 id="viewHandle"></h1>
     <img id="viewAvatar" class="avatar" src="" alt="Avatar" />
     <p id="viewBio"></p>
@@ -103,34 +109,10 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script>
-  // 1) Your Firebase project config
-  const firebaseConfig = {
-    apiKey: "AIzaSy…",
-    authDomain: "your-app.firebaseapp.com",
-    projectId: "your-app",
-    storageBucket: "your-app.appspot.com",
-    messagingSenderId: "…",
-    appId: "1:…"
-  };
-
-  // 2) Initialize App
-  firebase.initializeApp(firebaseConfig);
-
-  // 3) Initialize Firestore database reference
-  const db = firebase.firestore();
-
-  // Now you can use `db` to read/write your collections:
-  // db.collection('posts').add({ … })
-</script>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <!-- >>> ADD THIS: Auth SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <script>
-    // Initialize Firebase
+    // 1) Initialize Firebase
     const cfg = {
       apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
@@ -140,72 +122,99 @@
       appId: "1:886745899016:web:2b07e043c2434379d71bd"
     };
     firebase.initializeApp(cfg);
-    const db = firebase.firestore();
+    const db   = firebase.firestore();
+    const auth = firebase.auth();
 
-    // Helpers to show/hide sections
-    const editEl = document.getElementById('editProfile');
-    const viewEl = document.getElementById('viewProfile');
-    const title  = document.getElementById('pageTitle');
-    const params = new URLSearchParams(location.search);
-    const viewed = params.get('user');               // handle from URL
-    const me     = localStorage.getItem('h_username');
+    // 2) Modal helpers
+    function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden');  }
 
-    // VIEW-ONLY mode if ?user=someone and not your own handle
-    if (viewed && viewed !== me) {
-      editEl.style.display = 'none';
-      viewEl.style.display = 'block';
-      title.textContent   = viewed + "'s Profile";
+    // 3) Wire up Register/Login buttons
+    document.getElementById('showRegisterBtn')
+      .addEventListener('click', () => showModal('registerModal'));
+    document.getElementById('showLoginBtn')
+      .addEventListener('click', () => showModal('loginModal'));
 
-      // Fetch that user’s profile from Firestore
-      db.collection('users').doc(viewed).get()
-        .then(doc => {
-          const data = doc.data() || {};
-          document.getElementById('viewHandle').textContent = viewed;
-          document.getElementById('viewAvatar').src =
-            data.avatar || 'https://via.placeholder.com/100';
-          document.getElementById('viewBio').textContent =
-            data.bio || 'No bio set.';
+    // 4) Register
+    document.getElementById('doRegister').addEventListener('click', () => {
+      const email    = document.getElementById('regEmail').value;
+      const pass     = document.getElementById('regPassword').value;
+      const username = document.getElementById('regUsername').value;
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(({ user }) => user.updateProfile({ displayName: username }))
+        .then(() => {
+          alert('Registered as ' + username);
+          closeModal('registerModal');
+        })
+        .catch(e => alert(e.message));
+    });
+
+    // 5) Login
+    document.getElementById('doLogin').addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value;
+      const pass  = document.getElementById('loginPassword').value;
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(() => {
+          alert('Logged in!');
+          closeModal('loginModal');
+        })
+        .catch(e => alert(e.message));
+    });
+
+    // 6) React to Auth State
+    auth.onAuthStateChanged(user => {
+      const showRegBtn = document.getElementById('showRegisterBtn');
+      const showLogBtn = document.getElementById('showLoginBtn');
+      const editEl     = document.getElementById('editProfile');
+      const viewEl     = document.getElementById('viewProfile');
+      const titleEl    = document.getElementById('pageTitle');
+
+      if (user) {
+        // hide auth controls
+        showRegBtn.classList.add('hidden');
+        showLogBtn.classList.add('hidden');
+        // prefill edit inputs
+        document.getElementById('usernameInput').value  = user.displayName || '';
+        document.getElementById('avatarURLInput').value = user.photoURL   || '';
+        document.getElementById('bioInput').value       = '';
+        // show edit mode
+        editEl.classList.remove('hidden');
+        viewEl.classList.add('hidden');
+        titleEl.textContent = 'Edit Your Profile';
+      } else {
+        // show only auth buttons
+        showRegBtn.classList.remove('hidden');
+        showLogBtn.classList.remove('hidden');
+        editEl.classList.add('hidden');
+        viewEl.classList.add('hidden');
+        titleEl.textContent = 'Please Register or Login';
+      }
+    });
+
+    // 7) Save Profile to Firestore
+    document.getElementById('saveProfileBtn')
+      .addEventListener('click', async () => {
+        const user    = auth.currentUser;
+        const handle  = document.getElementById('usernameInput').value.trim();
+        const avatar  = document.getElementById('avatarURLInput').value.trim();
+        const bio     = document.getElementById('bioInput').value.trim();
+        if (!user || !handle) {
+          alert('You must be logged in and supply a username');
+          return;
+        }
+
+        // Update Auth profile
+        await user.updateProfile({ displayName: handle, photoURL: avatar });
+
+        // Persist in Firestore under a "users" collection
+        await db.collection('users').doc(handle).set({
+          avatar,
+          bio,
+          updated: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
-    else {
-      // EDIT mode
-      viewEl.style.display = 'none';
-      title.textContent    = 'Set Up Your Profile';
 
-      // Prefill from localStorage
-      document.getElementById('usernameInput').value = me || '';
-      document.getElementById('avatarURLInput').value = localStorage.getItem('h_avatar') || '';
-      document.getElementById('bioInput').value       = localStorage.getItem('h_bio')    || '';
-
-      // Save handler
-      document.getElementById('saveProfileBtn')
-        .addEventListener('click', async () => {
-
-          const user   = document.getElementById('usernameInput').value.trim();
-          const avatar = document.getElementById('avatarURLInput').value.trim();
-          const bio    = document.getElementById('bioInput').value.trim();
-
-          if (!user) {
-            alert('Username is required.');
-            return;
-          }
-
-          // 1) Store locally
-          localStorage.setItem('h_username', user);
-          localStorage.setItem('h_avatar',   avatar);
-          localStorage.setItem('h_bio',      bio);
-
-          // 2) Persist to Firestore
-          await db.collection('users').doc(user).set({ avatar, bio });
-
-          alert('Profile saved!');
-          // After first save, you can redirect back:
-          // location.href = 'social.html';
-        });
-    }
+        alert('Profile saved!');
+      });
   </script>
 </body>
 </html>
-
-   >
-

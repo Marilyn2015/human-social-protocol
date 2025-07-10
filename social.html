@@ -6,217 +6,165 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <style>
-    body { background: #000; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+    /* Modal styles */
+    #newPostModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+    #newPostModal .modal-content { background: #111; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
+
+    .active-tab { background: #0ff; color: #000; }
+    #tabButtons { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 20px; }
+
+    body { background: #000; color: #e0e0e0; font-family: Tahoma, sans-serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
     h1 { text-align: center; color: #fff; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 8px #0ff; }
-    .button-group { text-align: center; margin-bottom: 20px; }
-    button { background: #000; color: #fff; border: 1px solid #0ff; border-radius: 4px; padding: 8px 16px; cursor: pointer; margin: 0 5px; box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff; transition: .2s; }
+    button { background: #000; color: #fff; border: 1px solid #0ff; border-radius: 4px; padding: 0 12px; height: 40px; cursor: pointer; box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff; transition: .2s; display: inline-flex; align-items: center; justify-content: center; }
+    button img.nav-avatar { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
     button:hover { background: #0ff; color: #000; }
-    textarea, input[type="file"], input[type="text"] { width: 100%; background: #0a0a0a; color: #fff; border: 1px solid #444; padding: 12px; margin: 12px 0; border-radius: 4px; box-sizing: border-box; }
-    #postBox { height: 150px; resize: vertical; }
-    #msgBox { height: 60px; resize: none; }
-    .post, .message-item { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 16px; border-radius: 6px; }
+
+    textarea { width: 100%; background: #0a0a0a; color: #fff; border: 1px solid #444; padding: 12px; margin: 12px 0; border-radius: 4px; box-sizing: border-box; resize: vertical; }
+
+    .post, .message-item, .notification-item { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 16px; border-radius: 6px; }
     .meta { font-size: .75rem; color: #888; margin-bottom: 8px; display: flex; align-items: center; }
     .meta img { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; border: 1px solid #0ff; }
     .post-content { line-height: 1.4; }
+    .post-actions { margin-top: 8px; display: flex; gap: 8px; }
+    .action-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; }
+
     #userInfo { display: none; flex-direction: column; align-items: center; margin-bottom: 20px; }
-    #profileAvatar, #viewAvatar, #avatarPreview { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #0ff; object-fit: cover; margin-bottom: 8px; }
-    #profileName, #viewUsername { font-size: 1.2rem; color: #0ff; }
-    #profileBio, #viewBio { font-size: .9rem; color: #ccc; text-align: center; margin-bottom: 12px; }
+    #profileAvatar, #profile-page img.nav-avatar { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #0ff; object-fit: cover; margin-bottom: 8px; }
+    #profileName { font-size: 1.2rem; color: #0ff; }
     #profilePage { display: none; }
   </style>
 </head>
 <body>
   <h1>#HUMANITY</h1>
-
-  <!-- Profile Header -->
   <div id="userInfo">
-    <img id="profileAvatar" src="https://via.placeholder.com/64" alt="Avatar">
+    <img id="profileAvatar" src="" alt="Avatar">
     <span id="profileName"></span>
-    <p id="profileBio"></p>
   </div>
-
-  <div class="button-group">
-    <button id="btn-profile-page">👤 My Profile</button>
-    <button id="btn-back-feed" style="display:none;">🏠 Back to Feed</button>
+  <div id="tabButtons">
+    <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
+    <button id="btn-new-note">New Note</button>
+    <button id="tab-following">Following</button>
+    <button id="tab-messages">Messages</button>
+    <button id="tab-notifications">Notifications</button>
+    <button id="tab-universe">Universe</button>
   </div>
-
-  <!-- Feed Section: Share + Past Posts -->
-  <div id="feedSection">
-    <textarea id="postBox" placeholder="Feed the human feed..."></textarea>
-    <div class="button-group"><button id="btn-share">Share</button></div>
-    <h2 style="color:#0ff; margin-top:0;">Previous Posts</h2>
-    <div id="feed"></div>
-  </div>
-
-  <!-- Profile Page -->
-  <div id="profilePage">
-    <h2>Your Profile</h2>
-    <img id="viewAvatar" src="https://via.placeholder.com/64" alt="Avatar">
-    <span id="viewUsername"></span>
-    <p id="viewBio"></p>
-    <div class="button-group">
-      <button id="btn-edit-profile">✏️ Edit Profile</button>
-    </div>
-    <div id="editSection" style="display:none; text-align:left;">
-      <h3>Edit Profile</h3>
-      <label>Avatar:</label>
-      <input type="file" id="inputAvatarFile" accept="image/*">
-      <img id="avatarPreview" src="" alt="Preview">
-      <label>Username:</label>
-      <input type="text" id="inputUsername" placeholder="Username">
-      <label>Bio:</label>
-      <textarea id="inputBio" placeholder="Tell us about yourself..."></textarea>
+  <div id="newPostModal">
+    <div class="modal-content">
+      <h3>New Note</h3>
+      <textarea id="modalPostBox" placeholder="Write your note..." style="width:100%;height:120px;"></textarea>
       <div class="button-group">
-        <button id="btn-save-profile">Save</button>
-        <button id="btn-cancel-edit">Cancel</button>
+        <button id="modalShareBtn">Share</button>
+        <button id="modalCancelBtn" type="button">Cancel</button>
       </div>
     </div>
-
-    <h3>Messages</h3>
-    <!-- Recipient field -->
-    <input type="text" id="msgTo" placeholder="Send to...">
-    <div id="messageList"></div>
-    <textarea id="msgBox" placeholder="Type your message..."></textarea>
-    <div class="button-group"><button id="btn-send-msg">Send</button></div>
   </div>
-
+  <div id="feedSection"><h2>Latest:</h2><div id="feed"></div></div>
+  <div id="profilePage"></div>
+  <div><button id="btn-logout">Logout</button></div>
   <script>
-    // Utilities
-    function getCurrentUser() {
-      let u = localStorage.getItem('h_username');
-      if (!u) {
-        u = 'anon_' + Math.random().toString(36).substr(2,5);
-        localStorage.setItem('h_username', u);
-      }
-      return u;
-    }
-    function getAvatar() { return localStorage.getItem('h_avatar') || 'https://via.placeholder.com/64'; }
-    function getBio()    { return localStorage.getItem('h_bio')    || ''; }
-
-    // Elements
-    const userInfo      = document.getElementById('userInfo');
-    const profileAvatar = document.getElementById('profileAvatar');
-    const profileName   = document.getElementById('profileName');
-    const profileBio    = document.getElementById('profileBio');
-    const feedSection   = document.getElementById('feedSection');
-    const feed          = document.getElementById('feed');
-    const postBox       = document.getElementById('postBox');
-    const btnShare      = document.getElementById('btn-share');
-    const profilePage   = document.getElementById('profilePage');
-    const btnProfile    = document.getElementById('btn-profile-page');
-    const btnBackFeed   = document.getElementById('btn-back-feed');
-
-    const viewAvatar    = document.getElementById('viewAvatar');
-    const viewUsername  = document.getElementById('viewUsername');
-    const viewBio       = document.getElementById('viewBio');
-    const btnEdit       = document.getElementById('btn-edit-profile');
-    const editSection   = document.getElementById('editSection');
-    const inputAvatar   = document.getElementById('inputAvatarFile');
-    const avatarPreview = document.getElementById('avatarPreview');
-    const inputUsername = document.getElementById('inputUsername');
-    const inputBio      = document.getElementById('inputBio');
-    const btnSave       = document.getElementById('btn-save-profile');
-    const btnCancel     = document.getElementById('btn-cancel-edit');
-
-    const msgTo         = document.getElementById('msgTo');
-    const messageList   = document.getElementById('messageList');
-    const msgBox        = document.getElementById('msgBox');
-    const btnSendMsg    = document.getElementById('btn-send-msg');
-
-    // Load feed posts
-    function loadFeed() {
-      feed.innerHTML = '';
-      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-      if (posts.length === 0) {
-        feed.innerHTML = '<p style="color:#888;">No posts yet.</p>';
-        return;
-      }
-      posts.forEach(p => {
-        const d = document.createElement('div');
-        d.className = 'post';
-        d.innerHTML = `<div class="meta"><img src="${DOMPurify.sanitize(p.avatar)}"><strong>${DOMPurify.sanitize(p.user)}</strong></div><div class="post-content">${DOMPurify.sanitize(p.text)}</div>`;
-        feed.appendChild(d);
-      });
-    }
-    function sharePost() {
-      const text = postBox.value.trim(); if (!text) return;
-      const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-      posts.unshift({ user: getCurrentUser(), avatar: getAvatar(), text, timestamp: Date.now() });
-      localStorage.setItem('posts', JSON.stringify(posts));
-      postBox.value = '';
-      loadFeed();
-    }
-
-    // Profile functions
-    function updateHeader() {
-      profileAvatar.src = getAvatar();
-      profileName.textContent = getCurrentUser();
-      profileBio.textContent  = getBio();
-    }
-    function showProfile() {
-      updateHeader();
-      viewAvatar.src        = getAvatar();
-      viewUsername.textContent = getCurrentUser();
-      viewBio.textContent      = getBio();
-      userInfo.style.display    = 'flex';
-      feedSection.style.display = 'none';
-      profilePage.style.display = 'block';
-      btnBackFeed.style.display = 'inline-block';
-      loadMessages();
-    }
-    function showFeed() {
-      userInfo.style.display    = 'none';
-      profilePage.style.display  = 'none';
-      feedSection.style.display  = 'block';
-      btnBackFeed.style.display  = 'none';
-    }
-
-    // Edit profile
-    inputAvatar.addEventListener('change', () => {
-      const f = inputAvatar.files[0]; if (!f) return;
-      avatarPreview.src = URL.createObjectURL(f);
-    });
-    btnEdit.addEventListener('click', () => { editSection.style.display = 'block'; });
-    btnSave.addEventListener('click', () => {
-      const name = inputUsername.value.trim() || getCurrentUser();
-      localStorage.setItem('h_username', name);
-      if (avatarPreview.src) localStorage.setItem('h_avatar', avatarPreview.src);
-      const b = inputBio.value.trim();
-      if (b) localStorage.setItem('h_bio', b); else localStorage.removeItem('h_bio');
-      editSection.style.display = 'none';
-      showProfile();
-    });
-    btnCancel.addEventListener('click', () => { editSection.style.display = 'none'; });
-
-    // Messages
-    function loadMessages() {
-      messageList.innerHTML = '';
-      const msgs = JSON.parse(localStorage.getItem('messages') || '[]');
-      msgs.forEach(m => {
-        const d = document.createElement('div'); d.className = 'message-item';
-        d.textContent = `[${new Date(m.timestamp).toLocaleTimeString()}] ${m.user} → ${m.recipient}: ${m.text}`;
-        messageList.appendChild(d);
-      });
-    }
-    btnSendMsg.addEventListener('click', () => {
-      const t = msgBox.value.trim(); if (!t) return;
-      const r = msgTo.value.trim(); if (!r) { alert('Specify a recipient.'); return; }
-      const msgs = JSON.parse(localStorage.getItem('messages') || '[]');
-      msgs.push({ user: getCurrentUser(), recipient: r, text: t, timestamp: Date.now() });
-      localStorage.setItem('messages', JSON.stringify(msgs));
-      msgBox.value = '';
-      loadMessages();
-    });
-
-    // Event listeners
-    btnShare.addEventListener('click', sharePost);
-    btnProfile.addEventListener('click', showProfile);
-    btnBackFeed.addEventListener('click', showFeed);
-
     document.addEventListener('DOMContentLoaded', () => {
-      updateHeader();
+      function getCurrentUser() {
+        let u = localStorage.getItem('h_username');
+        if (!u) {
+          u = 'anon_' + Math.random().toString(36).substr(2,5);
+          localStorage.setItem('h_username', u);
+        }
+        return u;
+      }
+      function getAvatar() {
+        return localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp&s=64';
+      }
+
+      const user = getCurrentUser();
+      document.getElementById('profileName').textContent = user;
+      const avatarUrl = getAvatar();
+      document.getElementById('profileAvatar').src = avatarUrl;
+      document.querySelector('#btn-profile-page img').src = avatarUrl;
+
+      let currentTab = 'following';
+      const followingList = JSON.parse(localStorage.getItem('following') || '[]');
+      if (!localStorage.getItem('notes')) {
+        const now = Date.now();
+        const mock = [
+          { user: 'alice', avatar: avatarUrl, note: 'Hello from Alice!', timestamp: now - 600000, likes: 1 },
+          { user: 'bob', avatar: avatarUrl, note: 'Bob says hi to the #HUMANITY community.', timestamp: now - 300000, likes: 2 },
+          { user, avatar: avatarUrl, note: 'My personal note here.', timestamp: now - 100000, likes: 0 }
+        ];
+        localStorage.setItem('notes', JSON.stringify(mock));
+      }
+
+      function loadFeed() {
+        const feed = document.getElementById('feed'); feed.innerHTML = '';
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
+        const displayed = currentTab === 'following'
+          ? sorted.filter(n => followingList.includes(n.user))
+          : sorted;
+        displayed.forEach(n => {
+          const d = document.createElement('div'); d.className = 'post';
+          d.innerHTML = `
+            <div class="meta"><img src="${DOMPurify.sanitize(n.avatar)}"><strong>${DOMPurify.sanitize(n.user)}</strong></div>
+            <div class="post-content">${DOMPurify.sanitize(n.note)}</div>
+            <div class="post-actions">
+              <button class="action-btn" data-user="${n.user}" data-action="like">🙌<span class="like-count">${n.likes}</span></button>
+              <button class="action-btn" data-user="${n.user}" data-action="follow">➕</button>
+              <button class="action-btn" data-user="${n.user}" data-action="coin">🪙</button>
+              <button class="action-btn" data-user="${n.user}" data-action="mute">🔇</button>
+            </div>
+          `;
+          feed.appendChild(d);
+        });
+      }
+
+      function showProfile() {
+        document.getElementById('feedSection').style.display = 'none';
+        document.getElementById('tabButtons').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]').filter(n => n.user === user);
+        let html = `<h2>${user}'s Profile</h2><div><button id="btn-back">Back</button></div>`;
+        html += notes.map(n => `<div class="post"><div class="post-content">${DOMPurify.sanitize(n.note)}</div></div>`).join('');
+        document.getElementById('profilePage').innerHTML = html;
+        document.getElementById('profilePage').style.display = 'block';
+        document.getElementById('btn-back').onclick = () => {
+          document.getElementById('profilePage').style.display = 'none';
+          document.getElementById('userInfo').style.display = 'none';
+          document.getElementById('tabButtons').style.display = 'flex';
+          document.getElementById('feedSection').style.display = 'block';
+        };
+      }
+
+      document.getElementById('btn-profile-page').addEventListener('click', showProfile);
+      document.getElementById('btn-logout').addEventListener('click', () => {
+        localStorage.clear(); location.href = 'login.html';
+      });
+      ['following','universe','messages','notifications'].forEach(tab => {
+        document.getElementById('tab-' + tab).addEventListener('click', () => {
+          currentTab = tab;
+          document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
+          document.getElementById('tab-' + tab).classList.add('active-tab');
+          document.getElementById('profilePage').style.display = 'none';
+          loadFeed();
+        });
+      });
+      document.querySelector('#newPostModal').style.display = 'none';
+      document.getElementById('btn-new-note').addEventListener('click', () => document.getElementById('newPostModal').style.display = 'flex');
+
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => document.getElementById('newPostModal').style.display = 'none');
+      }
+
+      document.getElementById('modalShareBtn').addEventListener('click', () => {
+        const txt = document.getElementById('modalPostBox').value.trim(); if (!txt) return;
+        const notesArr = JSON.parse(localStorage.getItem('notes') || '[]');
+        notesArr.unshift({ user, avatar: getAvatar(), note: txt, timestamp: Date.now(), likes: 0 });
+        localStorage.setItem('notes', JSON.stringify(notesArr));
+        document.getElementById('modalPostBox').value = '';
+        document.getElementById('newPostModal').style.display = 'none';
+        loadFeed();
+      });
+
       loadFeed();
-      showFeed();
     });
   </script>
 </body>

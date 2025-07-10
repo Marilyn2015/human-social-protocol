@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <style>
     body {
@@ -20,11 +21,13 @@
       max-width: 800px;
       margin: 0 auto;
     }
+
     h1 {
       text-align: center;
       color: #fff;
       font-size: 3rem;
     }
+
     textarea#postBox {
       width: 100%;
       height: 150px;
@@ -37,6 +40,7 @@
       border-radius: 4px;
       resize: vertical;
     }
+
     textarea, input {
       width: 100%;
       background: #0a0a0a;
@@ -47,9 +51,12 @@
       margin-bottom: 10px;
       border-radius: 4px;
     }
+
     .button-group {
       text-align: center;
+      margin-bottom: 20px;
     }
+
     button {
       display: inline-block;
       background: #000;
@@ -62,10 +69,12 @@
       box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
       transition: .2s;
     }
+
     button:hover {
       background: #0ff;
       color: #000;
     }
+
     .post {
       background: #111;
       border: 1px solid #333;
@@ -74,6 +83,7 @@
       border-radius: 6px;
       box-shadow: 0 0 5px #0ff11;
     }
+
     .meta {
       font-size: .75rem;
       color: #888;
@@ -81,6 +91,7 @@
       display: flex;
       align-items: center;
     }
+
     .meta img {
       width: 24px;
       height: 24px;
@@ -88,11 +99,42 @@
       margin-right: 8px;
       border: 1px solid #0ff;
     }
+
     .post-content {
       line-height: 1.4;
     }
-    .hidden {
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
       display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #111;
+      border: 1px solid #0ff;
+      border-radius: 6px;
+      padding: 20px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 0 10px #0ff;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #0ff;
+    }
+
+    .modal .actions {
+      text-align: right;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -100,88 +142,244 @@
 
   <h1>#HUMANITY</h1>
 
-  <div class="button-group">
-    <button onclick="showCreateProfileModal()">🆕 Create Profile</button>
-    <button onclick="showMyProfile()">👤 My Profile</button>
-    <button onclick="showDMModal()">✉️ Message</button>
+  <div class="button-group" id="authButtons">
+    <button onclick="showRegister()">Register</button>
+    <button onclick="showLogin()">Login</button>
   </div>
 
-  <textarea id="postBox" placeholder="Write your post…"></textarea>
+  <div class="button-group hidden" id="mainButtons">
+    <button onclick="logout()">🚪 Logout</button>
+    <button onclick="showEditProfile()">👤 Profile</button>
+    <button onclick="showDMModal()">✉️ Send DM</button>
+    <button onclick="showInbox()">📥 Inbox</button>
+  </div>
+
+  <textarea id="postBox" placeholder="Write your post…" class="hidden"></textarea>
   <div class="button-group">
-    <button onclick="submitPost()">Share</button>
+    <button onclick="submitPost()" id="shareBtn" class="hidden">Share</button>
   </div>
 
   <div id="feed"></div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain: "hashhumanity-58b9a.firebaseapp.com",
-      projectId: "hashhumanity-58b9a",
-      storageBucket: "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"
-    };
+  <!-- Register Modal -->
+  <div id="registerOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Register</h2>
+      <input type="email" id="regEmail" placeholder="Email" />
+      <input type="password" id="regPassword" placeholder="Password" />
+      <input type="text" id="regUsername" placeholder="Display Name" />
+      <input type="text" id="regPhotoURL" placeholder="Avatar URL" />
+      <div class="actions">
+        <button onclick="register()">Create</button>
+        <button onclick="closeModal('registerOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Login Modal -->
+  <div id="loginOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <div class="actions">
+        <button onclick="login()">Login</button>
+        <button onclick="closeModal('loginOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div id="profileOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Edit Profile</h2>
+      <input type="text" id="editDisplayName" placeholder="Display Name" />
+      <input type="text" id="editPhotoURL" placeholder="Avatar URL" />
+      <div class="actions">
+        <button onclick="updateProfile()">Save</button>
+        <button onclick="closeModal('profileOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send DM Modal -->
+  <div id="dmOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Send Direct Message</h2>
+      <input type="text" id="dmRecipient" placeholder="Recipient Email" />
+      <textarea id="dmContent" placeholder="Your message…"></textarea>
+      <div class="actions">
+        <button onclick="sendDM()">Send</button>
+        <button onclick="closeModal('dmOverlay')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inbox Modal -->
+  <div id="inboxOverlay" class="modal-overlay">
+    <div class="modal">
+      <h2>Inbox</h2>
+      <div id="inboxList" style="max-height:300px; overflow-y:auto;"></div>
+      <div class="actions">
+        <button onclick="closeModal('inboxOverlay')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase init
+    const firebaseConfig = {
+      apiKey: "...", authDomain: "...",
+      projectId: "...", storageBucket: "...",
+      messagingSenderId: "...", appId: "..."
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
+    // Auth state listener
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // show main UI
+        document.getElementById('authButtons').classList.add('hidden');
+        document.getElementById('mainButtons').classList.remove('hidden');
+        document.getElementById('postBox').classList.remove('hidden');
+        document.getElementById('shareBtn').classList.remove('hidden');
+        renderFeedRealtime();
+      } else {
+        // show register/login
+        document.getElementById('authButtons').classList.remove('hidden');
+        document.getElementById('mainButtons').classList.add('hidden');
+        document.getElementById('postBox').classList.add('hidden');
+        document.getElementById('shareBtn').classList.add('hidden');
+        document.getElementById('feed').innerHTML = '';
+      }
+    });
+
+    // Real-time feed
+    function renderFeedRealtime() {
+      db.collection("posts")
+        .orderBy("timestamp","desc")
+        .onSnapshot(snapshot => {
+          const feed = document.getElementById("feed");
+          feed.innerHTML = '';
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            const el = document.createElement("div");
+            el.className = "post";
+            el.innerHTML = `
+              <div class="meta">
+                <img src="${d.photoURL||'https://via.placeholder.com/24'}" />
+                <strong>${d.displayName||d.username}</strong> — ${new Date(d.timestamp).toLocaleString()}
+              </div>
+              <div class="post-content">${DOMPurify.sanitize(marked.parse(d.content))}</div>
+            `;
+            feed.appendChild(el);
+          });
+        });
+    }
+
+    // Register / Login
+    function showRegister() { document.getElementById('registerOverlay').style.display='flex'; }
+    function showLogin()    { document.getElementById('loginOverlay').style.display='flex'; }
+    function closeModal(id) { document.getElementById(id).style.display='none'; }
+
+    function register() {
+      const e = document.getElementById('regEmail').value;
+      const p = document.getElementById('regPassword').value;
+      const dn = document.getElementById('regUsername').value;
+      const pu = document.getElementById('regPhotoURL').value;
+      auth.createUserWithEmailAndPassword(e,p)
+        .then(({user}) =>
+          user.updateProfile({ displayName: dn, photoURL: pu })
+        )
+        .then(() => closeModal('registerOverlay'))
+        .catch(console.error);
+    }
+
+    function login() {
+      const e = document.getElementById('loginEmail').value;
+      const p = document.getElementById('loginPassword').value;
+      auth.signInWithEmailAndPassword(e,p)
+        .then(() => closeModal('loginOverlay'))
+        .catch(console.error);
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    // Profile editing
+    function showEditProfile() {
+      const u = auth.currentUser;
+      document.getElementById('editDisplayName').value = u.displayName||'';
+      document.getElementById('editPhotoURL').value   = u.photoURL||'';
+      document.getElementById('profileOverlay').style.display='flex';
+    }
+    function updateProfile() {
+      const dn = document.getElementById('editDisplayName').value;
+      const pu = document.getElementById('editPhotoURL').value;
+      auth.currentUser.updateProfile({ displayName: dn, photoURL: pu })
+        .then(() => closeModal('profileOverlay'))
+        .catch(console.error);
+    }
+
+    // Post submission
     function submitPost() {
-      const username = localStorage.getItem('h_username') || 'Anonymous';
-      const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
+      const u = auth.currentUser;
       const content = document.getElementById('postBox').value.trim();
-      if (!content) return alert('Write something to post');
-
+      if (!content) return alert('Write something');
       db.collection("posts").add({
-        username,
-        avatar,
+        uid: u.uid,
+        username: u.email,
+        displayName: u.displayName,
+        photoURL: u.photoURL,
         content,
         timestamp: Date.now()
       }).then(() => {
         document.getElementById('postBox').value = '';
-        renderFeed();
-      }).catch(err => {
-        console.error('Error posting to Firebase:', err);
-        alert('Failed to post. Check your connection or Firebase setup.');
       });
     }
 
-    function renderFeed() {
-      db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
-        const feed = document.getElementById("feed");
-        feed.innerHTML = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const postEl = document.createElement("div");
-          postEl.className = "post";
-          postEl.innerHTML = `
-            <div class="meta">
-              <img src="${data.avatar}" />
-              <strong>${data.username}</strong> — ${new Date(data.timestamp).toLocaleString()}
-            </div>
-            <div class="post-content">${DOMPurify.sanitize(marked.parse(data.content))}</div>
-          `;
-          feed.appendChild(postEl);
-        });
-      }).catch(err => {
-        console.error('Error loading posts:', err);
-        document.getElementById("feed").innerHTML = '<p style="color:red;">Failed to load posts.</p>';
-      });
-    }
-
-    function showCreateProfileModal() {
-      alert('Create Profile modal placeholder');
-    }
-
-    function showMyProfile() {
-      alert('My Profile modal placeholder');
-    }
-
+    // Direct messages
     function showDMModal() {
-      alert('Direct Message modal placeholder');
+      document.getElementById('dmRecipient').value = '';
+      document.getElementById('dmContent').value = '';
+      document.getElementById('dmOverlay').style.display = 'flex';
+    }
+    function sendDM() {
+      const from = auth.currentUser.email;
+      const to   = document.getElementById('dmRecipient').value;
+      const msg  = document.getElementById('dmContent').value;
+      if (!to||!msg) return alert('Fill both fields');
+      db.collection("messages").add({
+        from, to, content: msg, timestamp: Date.now()
+      })
+      .then(() => closeModal('dmOverlay'))
+      .catch(console.error);
     }
 
-    window.addEventListener("load", renderFeed);
+    // Inbox real-time
+    function showInbox() {
+      document.getElementById('inboxOverlay').style.display='flex';
+      const list = document.getElementById('inboxList');
+      db.collection("messages")
+        .where("to","==", auth.currentUser.email)
+        .orderBy("timestamp","desc")
+        .onSnapshot(snap => {
+          list.innerHTML = '';
+          snap.forEach(doc => {
+            const m = doc.data();
+            const div = document.createElement('div');
+            div.className = 'post';
+            div.innerHTML = `
+              <strong>From: ${m.from}</strong> — ${new Date(m.timestamp).toLocaleString()}<br/>
+              ${m.content}
+            `;
+            list.appendChild(div);
+          });
+        });
+    }
   </script>
 </body>
 </html>

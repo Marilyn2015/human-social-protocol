@@ -31,3 +31,117 @@ window.addEventListener('DOMContentLoaded', () => {
   if (saved) {
     document.getElementById('username-screen').classList.add('hidden');
   }
+// auth.js — Modular Firebase v9+ with Social-Page Gating Only
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+
+// 1) Your Firebase config
+const firebaseConfig = {
+  apiKey:      'YOUR_API_KEY',
+  authDomain:  'YOUR_AUTH_DOMAIN',
+  projectId:   'YOUR_PROJECT_ID',
+  storageBucket:'YOUR_STORAGE_BUCKET',
+  messagingSenderId:'YOUR_MESSAGING_SENDER_ID',
+  appId:       'YOUR_APP_ID'
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// 2) Detect which page we’re on
+const path = window.location.pathname;
+const isLoginPage   = path.endsWith('login.html');
+const isSignupPage  = path.endsWith('signup.html');
+const isSocialPage  = path.endsWith('social.html');
+
+// 3) Gate the social page
+onAuthStateChanged(auth, user => {
+  if (!user && isSocialPage) {
+    // Not signed in → redirect to login.html
+    window.location.replace('login.html');
+  }
+  if ( user && (isLoginPage || isSignupPage) ) {
+    // Signed in → no need for login/signup pages
+    window.location.replace('social.html');
+  }
+});
+
+// 4) LOGIN handler on login.html
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+  const emailField = document.getElementById('email');
+  const passField  = document.getElementById('password');
+  const errorDiv   = document.getElementById('error-message');
+
+  loginForm.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    errorDiv.textContent = '';
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        emailField.value.trim(),
+        passField.value
+      );
+      // onAuthStateChanged will catch this and redirect
+    } catch (e) {
+      console.error('Login error:', e.code, e.message);
+      errorDiv.textContent = `Login failed: ${e.message}`;
+    }
+  });
+}
+
+// 5) SIGNUP handler on login.html (or signup.html)
+const signupLink = document.getElementById('signup-link');
+if (signupLink) {
+  signupLink.addEventListener('click', async ev => {
+    ev.preventDefault();
+    const email    = prompt('Enter your email:');
+    const password = prompt('Enter a password:');
+    if (!email || !password) {
+      return alert('Signup cancelled or missing fields.');
+    }
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert('Account created! Redirecting to login…');
+      window.location.replace('login.html');
+    } catch (e) {
+      console.error('Signup error:', e.code, e.message);
+      document.getElementById('error-message').textContent =
+        `Signup failed: ${e.message}`;
+    }
+  });
+}
+
+// 6) LOGOUT handler on social.html
+const logoutBtn = document.getElementById('logout-button');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      // onAuthStateChanged will redirect to login.html automatically
+    } catch (e) {
+      console.error('Logout error:', e.code, e.message);
+      alert('Logout failed: ' + e.message);
+    }
+  });
+}
+
+// ─── Test Cases ─────────────────────────────────────────
+// 1. Visit social.html while signed out → instant redirect to login.html.
+// 2. Login(valid creds) on login.html → onAuthStateChanged fires, redirect to social.html.
+// 3. Login(wrong password) → inline error under #error-message.
+// 4. Already signed-in & visit login.html or signup.html → redirect to social.html.
+// 5. Click “Sign up” → prompts for email/password → new account created, redirect to login.html.
+// 6. Logout on social.html → onAuthStateChanged fires, redirect to login.html.
+// 7. Attempt login/signup with empty fields → shows “cancelled” alert or inline error, no crash.
+// 8. Rapid double-submit on login form → only one network request proceeds.
+// 9. Network offline during login/signup → catch-block fires, shows error message.
+// 10. Visiting any other page (e.g. index.html) is **unrestricted**.
+

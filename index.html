@@ -2,72 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Allow Firebase network calls: -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; 
-                 script-src 'self' 'unsafe-inline'; 
-                 style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; 
-                 font-src https://fonts.gstatic.com; 
-                 connect-src 'none'; 
-                 img-src 'none'; 
+        content="default-src 'self';
+                 script-src 'self' https://www.gstatic.com 'unsafe-inline';
+                 style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+                 font-src https://fonts.gstatic.com;
+                 connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;
+                 img-src 'self';
                  frame-ancestors 'none';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>#HUMANITY</title>
-
-  <!-- Fancy Fonts -->
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Orbitron:wght@600&display=swap"
     rel="stylesheet"
   />
-
-  <!-- Inline Styles for simplicity -->
   <style>
     html, body {
-      margin: 0; height: 100%; background: #000;
-      font-family: Courier, monospace; overflow: hidden;
+      margin:0; height:100%; background:#000;
+      font-family:Courier, monospace; overflow:hidden;
     }
-    /* Centered UI */
     .content {
-      position: relative; z-index: 10;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      height: 100%; color: #fff;
-      text-shadow: 0 0 10px #aaa;
+      position:relative; z-index:10;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      height:100%; color:#fff;
+      text-shadow:0 0 10px #aaa;
     }
     .content h1 {
-      font-size: 4rem; margin-bottom: 2rem;
+      font-size:4rem; margin-bottom:2rem;
     }
     .content button {
-      padding: .75rem 2rem;
-      font-size: 1.1rem;
-      margin: .5rem 0;
-      background: transparent;
-      color: #fff;
-      border: 2px solid #fff;
-      cursor: pointer;
-      transition: .2s;
+      padding:.75rem 2rem;
+      font-size:1.1rem; margin:.5rem 0;
+      background:transparent; color:#fff;
+      border:2px solid #fff; cursor:pointer;
+      transition:.2s;
     }
     .content button:hover {
-      background: #fff;
-      color: #000;
+      background:#fff; color:#000;
     }
-
-    /* Hash rain */
     #hashStream {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; overflow: hidden;
-      z-index: 0;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      pointer-events:none; overflow:hidden;
+      z-index:0;
     }
     .hash {
-      position: absolute; white-space: nowrap;
-      color: #eeeeee; opacity: .16;
-      transform: translateX(100%);
-      animation: slide 25s linear forwards;
+      position:absolute; white-space:nowrap;
+      color:#eee; opacity:.16;
+      transform:translateX(100%);
+      animation:slide 25s linear forwards;
     }
-    @keyframes slide { to { transform: translateX(-100%); } }
+    @keyframes slide { to{transform:translateX(-100%);} }
   </style>
 </head>
-
 <body>
   <div class="content">
     <h1>#HUMANITY</h1>
@@ -75,36 +64,26 @@
     <button onclick="location.href='login.html'">Log In</button>
     <button onclick="location.href='social.html'">Continue as Guest</button>
   </div>
-
   <div id="hashStream"></div>
-
   <script>
     ;(function(){
-      const SPAWN_EVERY_MS = 500;
-      const HASH_LEN = 64;
+      const SPAWN_EVERY_MS = 500, HASH_LEN = 64;
       const CHARS = 'abcdef0123456789';
-
       function randomHash(){
-        let s = '';
-        for(let i=0;i<HASH_LEN;i++){
-          s += CHARS[Math.random()*CHARS.length|0];
-        }
+        let s=''; for(let i=0;i<HASH_LEN;i++) s+=CHARS[(Math.random()*CHARS.length)|0];
         return s;
       }
-
       function spawnHash(){
-        const el = document.createElement('span');
-        el.className = 'hash';
-        el.textContent = randomHash();
-        el.style.top = (Math.random()*100)+'vh';
-        el.style.fontSize = (14 + Math.random()*18)+'px';
-        el.style.opacity = (0.06 + Math.random()*0.12);
+        const el=document.createElement('span');
+        el.className='hash'; el.textContent=randomHash();
+        el.style.top=(Math.random()*100)+'vh';
+        el.style.fontSize=(14+Math.random()*18)+'px';
+        el.style.opacity=(.06+Math.random()*.12);
         document.getElementById('hashStream').appendChild(el);
-        el.addEventListener('animationend', () => el.remove());
+        el.addEventListener('animationend',()=>el.remove());
       }
-
       for(let i=0;i<30;i++) spawnHash();
-      setInterval(spawnHash, SPAWN_EVERY_MS);
+      setInterval(spawnHash,SPAWN_EVERY_MS);
     })();
   </script>
 </body>

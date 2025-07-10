@@ -1,153 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>#HUMANITY Social</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      padding: 40px 20px;
-      font-family: 'Courier New', monospace;
-      background: #000000;
-      color: #e0e0e0;
-      background-image: url('https://images.unsplash.com/photo-1606857521015-7e39c61f1e3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-    }
+    /* Modal styles */
+    #newPostModal, #editProfileModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+    #newPostModal .modal-content, #editProfileModal .modal-content { background: #111; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
+    #editProfileModal input[type="file"] { background: #222; color: #fff; }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: rgba(0, 0, 0, 0.85);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 30px #0ff;
-    }
+    .active-tab { background: #0ff; color: #000; }
+    #tabButtons { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 20px; }
 
-    h1 {
-      color: #0ff;
-      text-shadow: 0 0 8px #0ff;
-      text-align: center;
-      font-size: 3rem;
-      margin-bottom: 30px;
-    }
+    body { background: #000; color: #e0e0e0; font-family: Tahoma, sans-serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+    h1 { text-align: center; color: #fff; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 8px #0ff; }
+    button { background: #000; color: #fff; border: 1px solid #0ff; border-radius: 4px; padding: 0 12px; height: 40px; cursor: pointer; box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff; transition: .2s; display: inline-flex; align-items: center; justify-content: center; }
+    button img.nav-avatar { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
+    button:hover { background: #0ff; color: #000; }
 
-    textarea, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background: #111;
-      color: #0ff;
-      border: 1px solid #0ff;
-      border-radius: 6px;
-      font-size: 1rem;
-      box-shadow: 0 0 5px #0ff;
-    }
+    textarea, input[type="text"] { width: 100%; background: #0a0a0a; color: #fff; border: 1px solid #444; padding: 12px; margin: 12px 0; border-radius: 4px; box-sizing: border-box; resize: vertical; }
+    input[type="text"] { height: 36px; }
 
-    button:hover {
-      background-color: #0ff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    .post, .message-item, .notification-item { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 16px; border-radius: 6px; }
+    .meta { font-size: .75rem; color: #888; margin-bottom: 8px; display: flex; align-items: center; }
+    .meta img { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; border: 1px solid #0ff; }
+    .post-content { line-height: 1.4; }
+    .post-actions { margin-top: 8px; display: flex; gap: 8px; }
+    .action-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; }
 
-    .post {
-      background: #111;
-      border: 1px solid #0ff;
-      border-radius: 6px;
-      padding: 15px;
-      margin-top: 20px;
-      box-shadow: 0 0 10px #0ff;
-      display: flex;
-      align-items: flex-start;
-      gap: 15px;
-    }
-
-    .avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #0ff;
-    }
-
-    .post-content {
-      flex-grow: 1;
-    }
-
-    .post-content p {
-      margin: 0 0 10px;
-    }
-
-    .like-btn {
-      background: none;
-      border: none;
-      color: #0ff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 5px;
-      padding: 0;
-    }
-
-    .like-btn:hover {
-      text-decoration: underline;
-    }
+    #userInfo { display: none; flex-direction: column; align-items: center; margin-bottom: 20px; }
+    #profileAvatar, #profile-page img.nav-avatar, #editProfileAvatar, #avatarPreview { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #0ff; object-fit: cover; margin-bottom: 8px; }
+    #profileName { font-size: 1.2rem; color: #0ff; }
+    #profilePage { display: none; }
+    #profileBio { margin: 10px 0 20px 0; color: #b2e7f9; }
+    #editProfileTabBtn { margin-bottom: 12px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>#HUMANITY</h1>
-
-    <textarea id="postInput" placeholder="What's on your mind?" rows="4"></textarea>
-    <button onclick="submitPost()">Share</button>
-
-    <div id="postFeed"></div>
+  <h1>#HUMANITY</h1>
+  <div id="userInfo">
+    <img id="profileAvatar" src="" alt="Avatar">
+    <span id="profileName"></span>
   </div>
-
+  <div id="tabButtons">
+    <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
+    <button id="btn-new-note">New Note</button>
+    <button id="tab-following">Following</button>
+    <button id="tab-messages">Messages</button>
+    <button id="tab-notifications">Notifications</button>
+    <button id="tab-universe">Universe</button>
+  </div>
+  <div id="newPostModal">
+    <div class="modal-content">
+      <h3>New Note</h3>
+      <textarea id="modalPostBox" placeholder="Write your note..." style="width:100%;height:120px;"></textarea>
+      <div class="button-group">
+        <button id="modalShareBtn">Share</button>
+        <button id="modalCancelBtn" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <!-- Profile Page -->
+  <div id="profilePage"></div>
+  <!-- Profile Edit Modal -->
+  <div id="editProfileModal">
+    <div class="modal-content">
+      <h3>Edit Profile</h3>
+      <input id="avatarUpload" type="file" accept="image/*">
+      <img id="avatarPreview" src="" alt="Avatar Preview" style="display:block; margin:12px auto;">
+      <input id="editUsername" type="text" maxlength="32" placeholder="Username">
+      <textarea id="editBio" maxlength="180" placeholder="About/Bio"></textarea>
+      <div style="text-align:right;">
+        <button id="saveProfileBtn">Save</button>
+        <button id="cancelProfileBtn" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div><button id="btn-logout">Logout</button></div>
   <script>
-    const defaultAvatar = "https://i.pravatar.cc/100?img=1"; // Change or randomize if needed
-    let posts = [];
-
-    function submitPost() {
-      const postInput = document.getElementById("postInput");
-      const text = postInput.value.trim();
-      if (text === "") return;
-
-      const post = {
-        text,
-        likes: 0,
-        avatar: defaultAvatar
-      };
-
-      posts.unshift(post);
-      postInput.value = "";
-      renderPosts();
-    }
-
-    function renderPosts() {
-      const feed = document.getElementById("postFeed");
-      feed.innerHTML = "";
-
-      posts.forEach((post, index) => {
-        const postEl = document.createElement("div");
-        postEl.className = "post";
-        postEl.innerHTML = `
-          <img src="${post.avatar}" class="avatar" />
-          <div class="post-content">
-            <p>${post.text}</p>
-            <button class="like-btn" onclick="likePost(${index})">❤️ ${post.likes} Like${post.likes !== 1 ? 's' : ''}</button>
-          </div>
-        `;
-        feed.appendChild(postEl);
-      });
-    }
-
-    function likePost(index) {
-      posts[index].likes++;
-      renderPosts();
-    }
-  </script>
-</body>
-</html>
+    document.addEventListener('DOMContentLoad

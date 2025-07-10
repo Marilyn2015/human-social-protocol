@@ -15,8 +15,6 @@
       text-align: center;
     }
     h1 { color: #0ff; margin-bottom: 20px; }
-
-    /* hide/show utility */
     .hidden { display: none; }
 
     input, textarea, button {
@@ -45,10 +43,10 @@
       display: block;
       margin: 20px auto;
       width: 100px;
-      height:100px;
-      border-radius:50%;
-      object-fit:cover;
-      border:2px solid #0ff;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #0ff;
     }
     a.back-link {
       color: #0ff;
@@ -62,31 +60,28 @@
 
   <h1 id="pageTitle">My Profile</h1>
 
-  <!-- AUTH BUTTONS -->
   <button id="showRegisterBtn">Register</button>
   <button id="showLoginBtn">Login</button>
+  <button id="logoutBtn" class="hidden">Logout</button>
 
-  <!-- REGISTER MODAL -->
   <div id="registerModal" class="hidden">
-    <input id="regEmail"    type="email"    placeholder="Email">
-    <input id="regPassword" type="password" placeholder="Password">
-    <input id="regUsername" type="text"     placeholder="Display Name">
+    <input id="regEmail" type="email" placeholder="Email" required>
+    <input id="regPassword" type="password" placeholder="Password" required>
+    <input id="regUsername" type="text" placeholder="Display Name" required>
     <button id="doRegister">Create Account</button>
     <button onclick="closeModal('registerModal')">Cancel</button>
   </div>
 
-  <!-- LOGIN MODAL -->
   <div id="loginModal" class="hidden">
-    <input id="loginEmail"    type="email"    placeholder="Email">
-    <input id="loginPassword" type="password" placeholder="Password">
+    <input id="loginEmail" type="email" placeholder="Email" required>
+    <input id="loginPassword" type="password" placeholder="Password" required>
     <button id="doLogin">Login</button>
     <button onclick="closeModal('loginModal')">Cancel</button>
   </div>
 
-  <!-- EDIT MODE -->
-  <div id="editProfile">
+  <div id="editProfile" class="hidden">
     <label>Username</label>
-    <input id="usernameInput" placeholder="e.g. NeoCoder" />
+    <input id="usernameInput" placeholder="e.g. NeoCoder" required />
 
     <label>Avatar URL</label>
     <input id="avatarURLInput" placeholder="https://..." />
@@ -97,7 +92,6 @@
     <button id="saveProfileBtn">Save Profile</button>
   </div>
 
-  <!-- VIEW MODE -->
   <div id="viewProfile" class="hidden">
     <h1 id="viewHandle"></h1>
     <img id="viewAvatar" class="avatar" src="" alt="Avatar" />
@@ -106,13 +100,11 @@
 
   <a href="social.html" class="back-link">← Back to Feed</a>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
   <script>
-    // 1) Initialize Firebase
     const cfg = {
       apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
@@ -122,23 +114,19 @@
       appId: "1:886745899016:web:2b07e043c2434379d71bd"
     };
     firebase.initializeApp(cfg);
-    const db   = firebase.firestore();
+    const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // 2) Modal helpers
     function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden');  }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // 3) Wire up Register/Login buttons
-    document.getElementById('showRegisterBtn')
-      .addEventListener('click', () => showModal('registerModal'));
-    document.getElementById('showLoginBtn')
-      .addEventListener('click', () => showModal('loginModal'));
+    document.getElementById('showRegisterBtn').addEventListener('click', () => showModal('registerModal'));
+    document.getElementById('showLoginBtn').addEventListener('click', () => showModal('loginModal'));
+    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
-    // 4) Register
     document.getElementById('doRegister').addEventListener('click', () => {
-      const email    = document.getElementById('regEmail').value;
-      const pass     = document.getElementById('regPassword').value;
+      const email = document.getElementById('regEmail').value;
+      const pass = document.getElementById('regPassword').value;
       const username = document.getElementById('regUsername').value;
       auth.createUserWithEmailAndPassword(email, pass)
         .then(({ user }) => user.updateProfile({ displayName: username }))
@@ -149,10 +137,9 @@
         .catch(e => alert(e.message));
     });
 
-    // 5) Login
     document.getElementById('doLogin').addEventListener('click', () => {
       const email = document.getElementById('loginEmail').value;
-      const pass  = document.getElementById('loginPassword').value;
+      const pass = document.getElementById('loginPassword').value;
       auth.signInWithEmailAndPassword(email, pass)
         .then(() => {
           alert('Logged in!');
@@ -161,60 +148,69 @@
         .catch(e => alert(e.message));
     });
 
-    // 6) React to Auth State
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
       const showRegBtn = document.getElementById('showRegisterBtn');
       const showLogBtn = document.getElementById('showLoginBtn');
+      const logoutBtn  = document.getElementById('logoutBtn');
       const editEl     = document.getElementById('editProfile');
       const viewEl     = document.getElementById('viewProfile');
       const titleEl    = document.getElementById('pageTitle');
 
       if (user) {
-        // hide auth controls
         showRegBtn.classList.add('hidden');
         showLogBtn.classList.add('hidden');
-        // prefill edit inputs
-        document.getElementById('usernameInput').value  = user.displayName || '';
-        document.getElementById('avatarURLInput').value = user.photoURL   || '';
-        document.getElementById('bioInput').value       = '';
-        // show edit mode
+        logoutBtn.classList.remove('hidden');
+
+        const doc = await db.collection('users').doc(user.displayName).get();
+        const data = doc.data() || {};
+        const avatar = user.photoURL || data.avatar || '';
+        const bio = data.bio || '';
+
+        document.getElementById('usernameInput').value = user.displayName || '';
+        document.getElementById('avatarURLInput').value = avatar;
+        document.getElementById('bioInput').value = bio;
+
         editEl.classList.remove('hidden');
         viewEl.classList.add('hidden');
         titleEl.textContent = 'Edit Your Profile';
       } else {
-        // show only auth buttons
         showRegBtn.classList.remove('hidden');
         showLogBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
         editEl.classList.add('hidden');
         viewEl.classList.add('hidden');
         titleEl.textContent = 'Please Register or Login';
       }
     });
 
-    // 7) Save Profile to Firestore
-    document.getElementById('saveProfileBtn')
-      .addEventListener('click', async () => {
-        const user    = auth.currentUser;
-        const handle  = document.getElementById('usernameInput').value.trim();
-        const avatar  = document.getElementById('avatarURLInput').value.trim();
-        const bio     = document.getElementById('bioInput').value.trim();
-        if (!user || !handle) {
-          alert('You must be logged in and supply a username');
-          return;
-        }
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const user = auth.currentUser;
+      const handle = document.getElementById('usernameInput').value.trim();
+      const avatar = document.getElementById('avatarURLInput').value.trim();
+      const bio = document.getElementById('bioInput').value.trim();
 
-        // Update Auth profile
-        await user.updateProfile({ displayName: handle, photoURL: avatar });
+      if (!user || !handle) {
+        alert('You must be logged in and supply a username');
+        return;
+      }
 
-        // Persist in Firestore under a "users" collection
-        await db.collection('users').doc(handle).set({
-          avatar,
-          bio,
-          updated: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      await user.updateProfile({ displayName: handle, photoURL: avatar });
 
-        alert('Profile saved!');
+      await db.collection('users').doc(handle).set({
+        avatar,
+        bio,
+        updated: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      document.getElementById('editProfile').classList.add('hidden');
+      document.getElementById('viewProfile').classList.remove('hidden');
+      document.getElementById('viewHandle').textContent = handle;
+      document.getElementById('viewAvatar').src = avatar || 'https://via.placeholder.com/100';
+      document.getElementById('viewBio').textContent = bio;
+      document.getElementById('pageTitle').textContent = 'Your Profile';
+
+      alert('Profile saved!');
+    });
   </script>
 </body>
 </html>

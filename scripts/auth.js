@@ -13,12 +13,12 @@ import {
 
 // ─── 1) CONFIG ──────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:             'YOUR_API_KEY',
-  authDomain:         'YOUR_AUTH_DOMAIN',
-  projectId:          'YOUR_PROJECT_ID',
-  storageBucket:      'YOUR_STORAGE_BUCKET',
-  messagingSenderId:  'YOUR_MESSAGING_SENDER_ID',
-  appId:              'YOUR_APP_ID'
+  apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain: "hashhumanity-58b9a.firebaseapp.com",
+      projectId: "hashhumanity-58b9a",
+      storageBucket: "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"ID'
 };
 initializeApp(firebaseConfig);
 const auth = getAuth();

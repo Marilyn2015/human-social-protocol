@@ -7,37 +7,63 @@
   <style>
     body {
       background: #000;
-      color: #e0e0e0;
+      color: #00ffff;
       font-family: 'Courier New', monospace;
       padding: 40px 20px;
       max-width: 600px;
       margin: 0 auto;
       text-align: center;
     }
-    h1 { color: #0ff; margin-bottom: 20px; }
+
+    h1 {
+      color: #00ffff;
+      margin-bottom: 20px;
+      font-size: 2em;
+      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+    }
+
     .hidden { display: none; }
 
     input, textarea, button {
       display: block;
       width: 100%;
       max-width: 400px;
-      margin: 10px auto;
-      padding: 10px;
+      margin: 12px auto;
+      padding: 12px;
       background: #111;
-      color: #fff;
-      border: 1px solid #0ff;
+      color: #00ffff;
+      border: 1px solid #00ffff;
       border-radius: 4px;
       box-sizing: border-box;
+      font-size: 1em;
+      transition: border 0.2s, box-shadow 0.2s;
     }
-    textarea { height: 100px; resize: vertical; }
+
+    input:focus, textarea:focus {
+      border-color: #0ff;
+      box-shadow: 0 0 5px #0ff;
+      outline: none;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
 
     button {
-      background: #0ff;
+      background: #00ffff;
       color: #000;
       border: none;
+      font-weight: bold;
       cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px #0ff;
     }
-    button:hover { background: #0cc; }
+
+    button:hover {
+      background: #00cccc;
+      box-shadow: 0 0 15px #0ff;
+    }
 
     img.avatar {
       display: block;
@@ -47,12 +73,23 @@
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid #0ff;
+      box-shadow: 0 0 8px #0ff;
     }
+
     a.back-link {
-      color: #0ff;
+      color: #00ffff;
       display: block;
       margin-top: 30px;
       text-decoration: none;
+      font-size: 0.9em;
+      text-shadow: 0 0 5px #0ff;
+    }
+
+    label {
+      color: #aaa;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -81,13 +118,13 @@
 
   <div id="editProfile" class="hidden">
     <label>Username</label>
-    <input id="usernameInput" placeholder="e.g. NeoCoder" required />
+    <input id="usernameInput" placeholder="e.g. CypherQueen" required />
 
     <label>Avatar URL</label>
     <input id="avatarURLInput" placeholder="https://..." />
 
     <label>Bio</label>
-    <textarea id="bioInput" placeholder="Tell us about yourself…"></textarea>
+    <textarea id="bioInput" placeholder="Tell the world who you are…"></textarea>
 
     <button id="saveProfileBtn">Save Profile</button>
   </div>

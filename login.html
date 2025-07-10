@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Log In - #HUMANITY</title>
+  <title>Log In – #HUMANITY</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <style>
     body {
       background: #000;
-      color: #fff;
+      color: #0ff;
       font-family: 'Orbitron', sans-serif;
       display: flex;
       flex-direction: column;
@@ -18,95 +16,118 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
     h1 {
-      margin-bottom: 20px;
       font-size: 2.5rem;
+      margin-bottom: 1rem;
     }
-    input[type="email"], input[type="password"] {
+    form {
       background: #111;
+      padding: 20px;
+      border: 2px solid #0ff;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 320px;
+      box-sizing: border-box;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #000;
       color: #0ff;
       border: 1px solid #0ff;
-      padding: 10px;
-      margin-bottom: 15px;
-      width: 250px;
+      border-radius: 4px;
       font-size: 1rem;
     }
     button {
-      background: transparent;
-      color: #0ff;
-      border: 2px solid #0ff;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
+      width: 100%;
+      padding: 10px;
       margin-top: 10px;
-    }
-    button:hover {
       background: #0ff;
       color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0cc;
+    }
+    .link {
+      margin-top: 15px;
+      color: #0ff;
+      text-decoration: none;
+      font-size: 0.9rem;
     }
     .error {
       color: #f66;
-      margin-top: 10px;
-      height: 1.2em;
+      min-height: 1.2em;
+      margin-top: 5px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h1>Log In to #HUMANITY</h1>
+  <h1>Welcome Back</h1>
 
-  <input type="email"    id="email"    placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-  <button id="loginBtn">Log In</button>
-  <div class="error" id="errorMsg"></div>
+  <form id="login-form">
+    <input type="email"    id="email"    placeholder="Email"    required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Log In</button>
+    <div class="error" id="error-message"></div>
+  </form>
 
-  <script>
-    // 1) Initialize Firebase
+  <a href="signup.html" class="link">New here? Create an account</a>
+
+  <!-- Firebase v9+ modular -->
+  <script type="module">
+    import { initializeApp }               from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+                                          from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+
+    // 1) Config
     const firebaseConfig = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain: "hashhumanity-58b9a.firebaseapp.com",
-      projectId: "hashhumanity-58b9a",
-      storageBucket: "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+      apiKey:             'YOUR_API_KEY',
+      authDomain:         'YOUR_AUTH_DOMAIN',
+      projectId:          'YOUR_PROJECT_ID',
+      storageBucket:      'YOUR_STORAGE_BUCKET',
+      messagingSenderId:  'YOUR_MESSAGING_SENDER_ID',
+      appId:              'YOUR_APP_ID'
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // 2) Grab elements
-    const emailEl    = document.getElementById('email');
-    const passEl     = document.getElementById('password');
-    const loginBtn   = document.getElementById('loginBtn');
-    const errorMsgEl = document.getElementById('errorMsg');
+    const form    = document.getElementById('login-form');
+    const emailEl = document.getElementById('email');
+    const passEl  = document.getElementById('password');
+    const errEl   = document.getElementById('error-message');
 
-    // 3) Login handler
-    loginBtn.addEventListener('click', () => {
-      const email = emailEl.value.trim();
-      const pass  = passEl.value.trim();
-      errorMsgEl.textContent = '';
-
-      if (!email || !pass) {
-        errorMsgEl.textContent = 'Email & password are required.';
-        return;
-      }
-
-      auth.signInWithEmailAndPassword(email, pass)
-        .then(() => {
-          // Redirect to your feed after successful login
-          window.location.href = 'social.html';
-        })
-        .catch(err => {
-          errorMsgEl.textContent = err.message;
-        });
+    // 2) Redirect signed-in users
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.replace('social.html');
     });
 
-    // 4) If already logged in, go straight to feed
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        window.location.href = 'social.html';
+    // 3) Login flow
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errEl.textContent = '';
+
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          emailEl.value.trim(),
+          passEl.value
+        );
+        // onAuthStateChanged → redirect
+      } catch (err) {
+        errEl.textContent = err.message;
       }
     });
   </script>
+
 </body>
 </html>

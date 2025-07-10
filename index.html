@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- We need to allow Firebase on social.html, but index.html itself won’t call Firebase -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; 
                  script-src 'self' 'unsafe-inline'; 
@@ -61,13 +60,9 @@
 
   <div class="content">
     <h1>#HUMANITY</h1>
-   <div class="content">
-  <h1>#HUMANITY</h1>
-  <button onclick="location.href='signup.html'">Register</button>
-  <button onclick="location.href='login.html'">Log In</button>
-  <a href="social.html" class="guest-btn">Continue as Guest</a>
-</div>
-
+    <button onclick="location.href='signup.html'">Register</button>
+    <button onclick="location.href='login.html'">Log In</button>
+    <a href="social.html" class="guest-btn">Continue as Guest</a>
   </div>
 
   <div id="hashStream"></div>

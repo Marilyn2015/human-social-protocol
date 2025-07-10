@@ -22,26 +22,17 @@
       margin: 0 auto;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     h1 {
       text-align: center;
       color: #fff;
       font-size: 3rem;
     }
 
-    textarea#postBox {
-      width: 100%;
-      height: 150px;
-      background: #0a0a0a;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 12px;
-      box-sizing: border-box;
-      margin: 20px 0;
-      border-radius: 4px;
-      resize: vertical;
-    }
-
-    textarea, input {
+    textarea#postBox, textarea, input {
       width: 100%;
       background: #0a0a0a;
       color: #fff;
@@ -50,6 +41,7 @@
       box-sizing: border-box;
       margin-bottom: 10px;
       border-radius: 4px;
+      resize: vertical;
     }
 
     .button-group {
@@ -104,7 +96,6 @@
       line-height: 1.4;
     }
 
-    /* Modal styles */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -161,73 +152,24 @@
 
   <div id="feed"></div>
 
-  <!-- Register Modal -->
-  <div id="registerOverlay" class="modal-overlay">
-    <div class="modal">
-      <h2>Register</h2>
-      <input type="email" id="regEmail" placeholder="Email" />
-      <input type="password" id="regPassword" placeholder="Password" />
-      <input type="text" id="regUsername" placeholder="Display Name" />
-      <input type="text" id="regPhotoURL" placeholder="Avatar URL" />
-      <div class="actions">
-        <button onclick="register()">Create</button>
-        <button onclick="closeModal('registerOverlay')">Cancel</button>
-      </div>
-    </div>
-  </div>
+  <!-- Modals... same as before, keep yours -->
 
-  <!-- Login Modal -->
-  <div id="loginOverlay" class="modal-overlay">
-    <div class="modal">
-      <h2>Login</h2>
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-      <div class="actions">
-        <button onclick="login()">Login</button>
-        <button onclick="closeModal('loginOverlay')">Cancel</button>
-      </div>
-    </div>
-  </div>
+  <!-- REGISTER Modal -->
+  <div id="registerOverlay" class="modal-overlay">...</div>
 
-  <!-- Edit Profile Modal -->
-  <div id="profileOverlay" class="modal-overlay">
-    <div class="modal">
-      <h2>Edit Profile</h2>
-      <input type="text" id="editDisplayName" placeholder="Display Name" />
-      <input type="text" id="editPhotoURL" placeholder="Avatar URL" />
-      <div class="actions">
-        <button onclick="updateProfile()">Save</button>
-        <button onclick="closeModal('profileOverlay')">Cancel</button>
-      </div>
-    </div>
-  </div>
+  <!-- LOGIN Modal -->
+  <div id="loginOverlay" class="modal-overlay">...</div>
 
-  <!-- Send DM Modal -->
-  <div id="dmOverlay" class="modal-overlay">
-    <div class="modal">
-      <h2>Send Direct Message</h2>
-      <input type="text" id="dmRecipient" placeholder="Recipient Email" />
-      <textarea id="dmContent" placeholder="Your message…"></textarea>
-      <div class="actions">
-        <button onclick="sendDM()">Send</button>
-        <button onclick="closeModal('dmOverlay')">Cancel</button>
-      </div>
-    </div>
-  </div>
+  <!-- PROFILE Modal -->
+  <div id="profileOverlay" class="modal-overlay">...</div>
 
-  <!-- Inbox Modal -->
-  <div id="inboxOverlay" class="modal-overlay">
-    <div class="modal">
-      <h2>Inbox</h2>
-      <div id="inboxList" style="max-height:300px; overflow-y:auto;"></div>
-      <div class="actions">
-        <button onclick="closeModal('inboxOverlay')">Close</button>
-      </div>
-    </div>
-  </div>
+  <!-- DM Modal -->
+  <div id="dmOverlay" class="modal-overlay">...</div>
+
+  <!-- INBOX Modal -->
+  <div id="inboxOverlay" class="modal-overlay">...</div>
 
   <script>
-    // Firebase init
     const firebaseConfig = {
       apiKey: "...", authDomain: "...",
       projectId: "...", storageBucket: "...",
@@ -237,17 +179,20 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Auth state listener
     auth.onAuthStateChanged(user => {
       if (user) {
-        // show main UI
         document.getElementById('authButtons').classList.add('hidden');
         document.getElementById('mainButtons').classList.remove('hidden');
         document.getElementById('postBox').classList.remove('hidden');
         document.getElementById('shareBtn').classList.remove('hidden');
         renderFeedRealtime();
+
+        const banner = document.createElement('div');
+        banner.textContent = `Welcome back, ${user.displayName || user.email}`;
+        banner.style.textAlign = 'center';
+        banner.style.marginBottom = '20px';
+        document.body.insertBefore(banner, document.getElementById('postBox'));
       } else {
-        // show register/login
         document.getElementById('authButtons').classList.remove('hidden');
         document.getElementById('mainButtons').classList.add('hidden');
         document.getElementById('postBox').classList.add('hidden');
@@ -256,30 +201,26 @@
       }
     });
 
-    // Real-time feed
     function renderFeedRealtime() {
-      db.collection("posts")
-        .orderBy("timestamp","desc")
-        .onSnapshot(snapshot => {
-          const feed = document.getElementById("feed");
-          feed.innerHTML = '';
-          snapshot.forEach(doc => {
-            const d = doc.data();
-            const el = document.createElement("div");
-            el.className = "post";
-            el.innerHTML = `
-              <div class="meta">
-                <img src="${d.photoURL||'https://via.placeholder.com/24'}" />
-                <strong>${d.displayName||d.username}</strong> — ${new Date(d.timestamp).toLocaleString()}
-              </div>
-              <div class="post-content">${DOMPurify.sanitize(marked.parse(d.content))}</div>
-            `;
-            feed.appendChild(el);
-          });
+      db.collection("posts").orderBy("timestamp","desc").onSnapshot(snapshot => {
+        const feed = document.getElementById("feed");
+        feed.innerHTML = '';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const el = document.createElement("div");
+          el.className = "post";
+          el.innerHTML = `
+            <div class="meta">
+              <img src="${d.photoURL||'https://via.placeholder.com/24'}" />
+              <strong>${d.displayName||d.username}</strong> — ${new Date(d.timestamp).toLocaleString()}
+            </div>
+            <div class="post-content">${DOMPurify.sanitize(marked.parse(d.content))}</div>
+          `;
+          feed.appendChild(el);
         });
+      });
     }
 
-    // Register / Login
     function showRegister() { document.getElementById('registerOverlay').style.display='flex'; }
     function showLogin()    { document.getElementById('loginOverlay').style.display='flex'; }
     function closeModal(id) { document.getElementById(id).style.display='none'; }
@@ -289,46 +230,56 @@
       const p = document.getElementById('regPassword').value;
       const dn = document.getElementById('regUsername').value;
       const pu = document.getElementById('regPhotoURL').value;
-      auth.createUserWithEmailAndPassword(e,p)
-        .then(({user}) =>
-          user.updateProfile({ displayName: dn, photoURL: pu })
-        )
+
+      auth.createUserWithEmailAndPassword(e, p)
+        .then(({ user }) => user.updateProfile({ displayName: dn, photoURL: pu }))
         .then(() => closeModal('registerOverlay'))
-        .catch(console.error);
+        .catch(err => {
+          console.error('Registration error:', err.message);
+          alert(err.message);
+        });
     }
 
     function login() {
       const e = document.getElementById('loginEmail').value;
       const p = document.getElementById('loginPassword').value;
-      auth.signInWithEmailAndPassword(e,p)
+
+      auth.signInWithEmailAndPassword(e, p)
         .then(() => closeModal('loginOverlay'))
-        .catch(console.error);
+        .catch(err => {
+          console.error('Login error:', err.message);
+          alert(err.message);
+        });
     }
 
     function logout() {
       auth.signOut();
     }
 
-    // Profile editing
     function showEditProfile() {
       const u = auth.currentUser;
-      document.getElementById('editDisplayName').value = u.displayName||'';
-      document.getElementById('editPhotoURL').value   = u.photoURL||'';
-      document.getElementById('profileOverlay').style.display='flex';
+      document.getElementById('editDisplayName').value = u.displayName || '';
+      document.getElementById('editPhotoURL').value = u.photoURL || '';
+      document.getElementById('profileOverlay').style.display = 'flex';
     }
+
     function updateProfile() {
       const dn = document.getElementById('editDisplayName').value;
       const pu = document.getElementById('editPhotoURL').value;
+
       auth.currentUser.updateProfile({ displayName: dn, photoURL: pu })
         .then(() => closeModal('profileOverlay'))
-        .catch(console.error);
+        .catch(err => {
+          console.error('Update error:', err.message);
+          alert(err.message);
+        });
     }
 
-    // Post submission
     function submitPost() {
       const u = auth.currentUser;
       const content = document.getElementById('postBox').value.trim();
       if (!content) return alert('Write something');
+
       db.collection("posts").add({
         uid: u.uid,
         username: u.email,
@@ -341,31 +292,35 @@
       });
     }
 
-    // Direct messages
     function showDMModal() {
       document.getElementById('dmRecipient').value = '';
       document.getElementById('dmContent').value = '';
       document.getElementById('dmOverlay').style.display = 'flex';
     }
+
     function sendDM() {
       const from = auth.currentUser.email;
-      const to   = document.getElementById('dmRecipient').value;
-      const msg  = document.getElementById('dmContent').value;
-      if (!to||!msg) return alert('Fill both fields');
+      const to = document.getElementById('dmRecipient').value;
+      const msg = document.getElementById('dmContent').value;
+      if (!to || !msg) return alert('Fill both fields');
+
       db.collection("messages").add({
         from, to, content: msg, timestamp: Date.now()
       })
       .then(() => closeModal('dmOverlay'))
-      .catch(console.error);
+      .catch(err => {
+        console.error('DM error:', err.message);
+        alert(err.message);
+      });
     }
 
-    // Inbox real-time
     function showInbox() {
-      document.getElementById('inboxOverlay').style.display='flex';
+      document.getElementById('inboxOverlay').style.display = 'flex';
       const list = document.getElementById('inboxList');
+
       db.collection("messages")
-        .where("to","==", auth.currentUser.email)
-        .orderBy("timestamp","desc")
+        .where("to", "==", auth.currentUser.email)
+        .orderBy("timestamp", "desc")
         .onSnapshot(snap => {
           list.innerHTML = '';
           snap.forEach(doc => {
@@ -380,6 +335,13 @@
           });
         });
     }
+
+    // Close modals on background click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+      });
+    });
   </script>
 </body>
 </html>

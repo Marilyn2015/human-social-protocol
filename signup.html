@@ -2,105 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign Up – #HUMANITY</title>
+  <!-- Same CSP as index -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; 
+                 script-src 'self' https://www.gstatic.com;
+                 style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+                 font-src https://fonts.gstatic.com;
+                 connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com;
+                 frame-ancestors 'none';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <title>Sign Up – #HUMANITY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap"
+        rel="stylesheet" />
   <style>
     body {
-      background: #000;
-      color: #0ff;
-      font-family: 'Orbitron', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      background:#000; color:#0ff;
+      font-family:'Orbitron',sans-serif;
+      display:flex; align-items:center;
+      justify-content:center;
+      height:100vh; margin:0;
     }
     form {
-      background: #111;
-      padding: 20px;
-      border: 2px solid #0ff;
-      border-radius: 6px;
-      width: 100%;
-      max-width: 320px;
-      box-sizing: border-box;
+      background:#111; padding:20px;
+      border:2px solid #0ff;
+      border-radius:6px; width:100%;
+      max-width:320px; box-sizing:border-box;
     }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      background: #000;
-      color: #0ff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-      font-size: 1rem;
+    h1 {
+      text-align:center; margin-bottom:1rem;
+      font-size:2rem;
     }
+    input,button {
+      width:100%; padding:10px;
+      margin:10px 0; box-sizing:border-box;
+      border-radius:4px; border:1px solid #0ff;
+      font-size:1rem;
+    }
+    input { background:#000; color:#0ff; }
     button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
+      background:#0ff; color:#000; border:none;
+      cursor:pointer;
     }
-    button:hover {
-      background: #0cc;
-    }
-    .link {
-      margin-top: 15px;
-      color: #0ff;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .error {
-      color: #f66;
-      min-height: 1.2em;
-      margin-top: 5px;
-      text-align: center;
-    }
+    button:hover { background:#0cc; }
+    .link { text-align:center; font-size:.9rem; margin-top:.5rem; }
+    .error { color:#f66; min-height:1rem; text-align:center; }
   </style>
 </head>
 <body>
 
-  <h1>Create Account</h1>
-
   <form id="signup-form">
-    <input type="email"    id="email"        placeholder="Email"        required />
-    <input type="password" id="password"     placeholder="Password"     required />
-    <input type="text"     id="displayName"  placeholder="Display Name" required />
+    <h1>Create Account</h1>
+    <input type="email"    id="email"       placeholder="Email"        required />
+    <input type="password" id="password"    placeholder="Password"     required />
+    <input type="text"     id="displayName" placeholder="Display Name" required />
     <button type="submit">Sign Up</button>
     <div class="error" id="error-message"></div>
+    <div class="link">
+      <a href="login.html" style="color:#0ff;text-decoration:none;">
+        Already have an account? Log In
+      </a>
+    </div>
   </form>
 
-  <a href="login.html" class="link">Already have an account? Log in</a>
-
-  <!-- Firebase v9+ modular -->
   <script type="module">
-    import { initializeApp }               from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } 
-                                          from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, updateProfile,
+             onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
 
-    // 1) Config
+    // ←— YOUR FIREBASE CONFIG —
     const firebaseConfig = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-      authDomain: "hashhumanity-58b9a.firebaseapp.com",
-      projectId: "hashhumanity-58b9a",
-      storageBucket: "hashhumanity-58b9a.appspot.com",
-      messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+      apiKey:            'YOUR_API_KEY',
+      authDomain:        'YOUR_AUTH_DOMAIN',
+      projectId:         'YOUR_PROJECT_ID',
+      storageBucket:     'YOUR_STORAGE_BUCKET',
+      messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+      appId:             'YOUR_APP_ID'
     };
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    initializeApp(firebaseConfig);
+    const auth = getAuth();
+
+    // Redirect if already signed in
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.replace('social.html');
+    });
 
     const form    = document.getElementById('signup-form');
     const emailEl = document.getElementById('email');
@@ -108,16 +93,8 @@
     const nameEl  = document.getElementById('displayName');
     const errEl   = document.getElementById('error-message');
 
-    // 2) Prevent signed-in users from re-registering
-    onAuthStateChanged(auth, user => {
-      if (user) window.location.replace('social.html');
-    });
-
-    // 3) Sign-up flow
     form.addEventListener('submit', async e => {
-      e.preventDefault();
-      errEl.textContent = '';
-
+      e.preventDefault(); errEl.textContent = '';
       try {
         const cred = await createUserWithEmailAndPassword(
           auth,
@@ -127,13 +104,11 @@
         await updateProfile(cred.user, {
           displayName: nameEl.value.trim()
         });
-        // Success → go to feed
         window.location.replace('social.html');
       } catch (err) {
         errEl.textContent = err.message;
       }
     });
   </script>
-
 </body>
 </html>

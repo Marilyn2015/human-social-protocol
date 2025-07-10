@@ -2,13 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register</title>
+  <title>Firebase Auth Demo</title>
+</head>
+<body>
+  <h2>Firebase Auth Demo</h2>
+
+  <!-- Registration Form -->
+  <div id="registerSection">
+    <h3>Register</h3>
+    <input type="text" id="regName" placeholder="Full Name"><br>
+    <input type="email" id="regEmail" placeholder="Email"><br>
+    <input type="password" id="regPassword" placeholder="Password"><br>
+    <button onclick="registerUser()">Register</button>
+  </div>
+
+  <!-- Login Form -->
+  <div id="loginSection">
+    <h3>Login</h3>
+    <input type="email" id="loginEmail" placeholder="Email"><br>
+    <input type="password" id="loginPassword" placeholder="Password"><br>
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <!-- User Info -->
+  <div id="userSection" style="display:none;">
+    <h3>Welcome, <span id="userName"></span>!</h3>
+    <p>Email: <span id="userEmail"></span></p>
+    <button onclick="logoutUser()">Logout</button>
+  </div>
+
+  <!-- Messages -->
+  <p id="message" style="color: green;"></p>
+  <p id="error" style="color: red;"></p>
+
   <script type="module">
-    // Firebase v9 Modular SDK (replace with your config)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
       getAuth,
-      createUserWithEmailAndPassword
+      setPersistence,
+      browserLocalPersistence,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      updateProfile,
+      sendEmailVerification,
+      onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -23,15 +61,79 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.registerUser = async function () {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const successMessage = document.getElementById('successMessage');
-      const errorMessage = document.getElementById('errorMessage');
+    // Set persistent login
+    setPersistence(auth, browserLocalPersistence);
 
-      successMessage.textContent = '';
-      errorMessage.textContent = '';
+    // Register user
+    window.registerUser = async function () {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const message = document.getElementById('message');
+      const error = document.getElementById('error');
+      message.textContent = '';
+      error.textContent = '';
 
       if (!name || !email || !password) {
-        errorMessage
+        error.textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        await sendEmailVerification(userCredential.user);
+        message.textContent = 'Registration successful! Please check your email to verify your account.';
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    };
+
+    // Login user
+    window.loginUser = async function () {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const message = document.getElementById('message');
+      const error = document.getElementById('error');
+      message.textContent = '';
+      error.textContent = '';
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          error.textContent = 'Please verify your email before logging in.';
+          await signOut(auth);
+        }
+      } catch (err) {
+        error.textContent = err.message;
+      }
+    };
+
+    // Logout user
+    window.logoutUser = async function () {
+      await signOut(auth);
+    };
+
+    // Monitor auth state
+    onAuthStateChanged(auth, (user) => {
+      const userSection = document.getElementById('userSection');
+      const loginSection = document.getElementById('loginSection');
+      const registerSection = document.getElementById('registerSection');
+      const userName = document.getElementById('userName');
+      const userEmail = document.getElementById('userEmail');
+
+      if (user && user.emailVerified) {
+        userSection.style.display = 'block';
+        loginSection.style.display = 'none';
+        registerSection.style.display = 'none';
+        userName.textContent = user.displayName || 'User';
+        userEmail.textContent = user.email;
+      } else {
+        userSection.style.display = 'none';
+        loginSection.style.display = 'block';
+        registerSection.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

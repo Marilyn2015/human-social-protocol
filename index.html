@@ -1,39 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Firebase Auth Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      background: white;
+      padding: 2rem;
+      margin: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    .section h3 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.6rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    #message {
+      color: green;
+      text-align: center;
+    }
+
+    #error {
+      color: red;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <h2>Firebase Auth Demo</h2>
 
   <!-- Registration Form -->
-  <div id="registerSection">
+  <div class="section" id="registerSection">
     <h3>Register</h3>
-    <input type="text" id="regName" placeholder="Full Name"><br>
-    <input type="email" id="regEmail" placeholder="Email"><br>
-    <input type="password" id="regPassword" placeholder="Password"><br>
+    <input type="text" id="regName" placeholder="Full Name" />
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPassword" placeholder="Password" />
     <button onclick="registerUser()">Register</button>
   </div>
 
   <!-- Login Form -->
-  <div id="loginSection">
+  <div class="section" id="loginSection">
     <h3>Login</h3>
-    <input type="email" id="loginEmail" placeholder="Email"><br>
-    <input type="password" id="loginPassword" placeholder="Password"><br>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
     <button onclick="loginUser()">Login</button>
   </div>
 
   <!-- User Info -->
-  <div id="userSection" style="display:none;">
+  <div class="section" id="userSection" style="display: none;">
     <h3>Welcome, <span id="userName"></span>!</h3>
     <p>Email: <span id="userEmail"></span></p>
     <button onclick="logoutUser()">Logout</button>
   </div>
 
   <!-- Messages -->
-  <p id="message" style="color: green;"></p>
-  <p id="error" style="color: red;"></p>
+  <p id="message"></p>
+  <p id="error"></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
@@ -50,32 +110,31 @@
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
     const firebaseConfig = {
-       apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
       projectId: "hashhumanity-58b9a",
       storageBucket: "hashhumanity-58b9a.appspot.com",
       messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd""
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Set persistent login
+    // Keep user logged in
     setPersistence(auth, browserLocalPersistence);
 
-    // Register user
     window.registerUser = async function () {
-      const name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const password = document.getElementById('regPassword').value;
-      const message = document.getElementById('message');
-      const error = document.getElementById('error');
-      message.textContent = '';
-      error.textContent = '';
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const message = document.getElementById("message");
+      const error = document.getElementById("error");
+      message.textContent = "";
+      error.textContent = "";
 
       if (!name || !email || !password) {
-        error.textContent = 'Please fill in all fields.';
+        error.textContent = "Please fill in all fields.";
         return;
       }
 
@@ -83,25 +142,24 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
         await sendEmailVerification(userCredential.user);
-        message.textContent = 'Registration successful! Please check your email to verify your account.';
+        message.textContent = "Registration successful! Check your email to verify your account.";
       } catch (err) {
         error.textContent = err.message;
       }
     };
 
-    // Login user
     window.loginUser = async function () {
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const message = document.getElementById('message');
-      const error = document.getElementById('error');
-      message.textContent = '';
-      error.textContent = '';
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const message = document.getElementById("message");
+      const error = document.getElementById("error");
+      message.textContent = "";
+      error.textContent = "";
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         if (!userCredential.user.emailVerified) {
-          error.textContent = 'Please verify your email before logging in.';
+          error.textContent = "Please verify your email before logging in.";
           await signOut(auth);
         }
       } catch (err) {
@@ -109,29 +167,27 @@
       }
     };
 
-    // Logout user
     window.logoutUser = async function () {
       await signOut(auth);
     };
 
-    // Monitor auth state
     onAuthStateChanged(auth, (user) => {
-      const userSection = document.getElementById('userSection');
-      const loginSection = document.getElementById('loginSection');
-      const registerSection = document.getElementById('registerSection');
-      const userName = document.getElementById('userName');
-      const userEmail = document.getElementById('userEmail');
+      const userSection = document.getElementById("userSection");
+      const loginSection = document.getElementById("loginSection");
+      const registerSection = document.getElementById("registerSection");
+      const userName = document.getElementById("userName");
+      const userEmail = document.getElementById("userEmail");
 
       if (user && user.emailVerified) {
-        userSection.style.display = 'block';
-        loginSection.style.display = 'none';
-        registerSection.style.display = 'none';
-        userName.textContent = user.displayName || 'User';
+        userSection.style.display = "block";
+        loginSection.style.display = "none";
+        registerSection.style.display = "none";
+        userName.textContent = user.displayName || "User";
         userEmail.textContent = user.email;
       } else {
-        userSection.style.display = 'none';
-        loginSection.style.display = 'block';
-        registerSection.style.display = 'block';
+        userSection.style.display = "none";
+        loginSection.style.display = "block";
+        registerSection.style.display = "block";
       }
     });
   </script>

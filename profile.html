@@ -103,6 +103,27 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script>
+  // 1) Your Firebase project config
+  const firebaseConfig = {
+    apiKey: "AIzaSy…",
+    authDomain: "your-app.firebaseapp.com",
+    projectId: "your-app",
+    storageBucket: "your-app.appspot.com",
+    messagingSenderId: "…",
+    appId: "1:…"
+  };
+
+  // 2) Initialize App
+  firebase.initializeApp(firebaseConfig);
+
+  // 3) Initialize Firestore database reference
+  const db = firebase.firestore();
+
+  // Now you can use `db` to read/write your collections:
+  // db.collection('posts').add({ … })
+</script>
+
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <!-- >>> ADD THIS: Auth SDK -->

@@ -2,251 +2,187 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>#HUMANITY Profile</title>
+  <title>#HUMANITY Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       background: #000;
       color: #00ffff;
       font-family: 'Courier New', monospace;
+      margin: 0;
       padding: 40px 20px;
-      max-width: 600px;
-      margin: 0 auto;
       text-align: center;
     }
 
     h1 {
-      color: #00ffff;
-      margin-bottom: 20px;
-      font-size: 2em;
-      text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+      font-size: 2.5em;
+      text-shadow: 0 0 10px #0ff;
+      margin-bottom: 30px;
     }
 
-    .hidden { display: none; }
-
-    input, textarea, button {
-      display: block;
-      width: 100%;
-      max-width: 400px;
-      margin: 12px auto;
-      padding: 12px;
+    .feed-container {
       background: #111;
-      color: #00ffff;
-      border: 1px solid #00ffff;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 1em;
-      transition: border 0.2s, box-shadow 0.2s;
-    }
-
-    input:focus, textarea:focus {
-      border-color: #0ff;
-      box-shadow: 0 0 5px #0ff;
-      outline: none;
+      border: 2px solid #0ff;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      padding: 20px;
+      box-shadow: 0 0 20px #0ff;
     }
 
     textarea {
+      width: 100%;
       height: 100px;
+      padding: 12px;
+      background: #000;
+      color: #00ffff;
+      border: 1px solid #0ff;
+      border-radius: 6px;
       resize: vertical;
+      font-size: 1em;
+      margin-bottom: 12px;
     }
 
     button {
-      background: #00ffff;
-      color: #000;
+      padding: 10px 20px;
+      background: linear-gradient(90deg, #ff00ff, #00ffff);
       border: none;
+      color: #000;
       font-weight: bold;
+      border-radius: 5px;
       cursor: pointer;
-      text-transform: uppercase;
       box-shadow: 0 0 10px #0ff;
+      text-transform: uppercase;
     }
 
     button:hover {
-      background: #00cccc;
-      box-shadow: 0 0 15px #0ff;
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      box-shadow: 0 0 15px #f0f;
     }
 
-    img.avatar {
-      display: block;
-      margin: 20px auto;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #0ff;
-      box-shadow: 0 0 8px #0ff;
+    .post {
+      background: #111;
+      border: 1px solid #0ff;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px #0ff;
+      text-align: left;
     }
 
-    a.back-link {
-      color: #00ffff;
-      display: block;
-      margin-top: 30px;
-      text-decoration: none;
-      font-size: 0.9em;
-      text-shadow: 0 0 5px #0ff;
+    .post h3 {
+      margin: 0 0 5px;
+      color: #ff00ff;
+      font-size: 1.1em;
     }
 
-    label {
-      color: #aaa;
-      font-size: 0.9em;
-      text-transform: uppercase;
+    .post p {
+      margin: 5px 0;
+      line-height: 1.4em;
+    }
+
+    .like-btn {
       margin-top: 10px;
+      background: transparent;
+      color: #00ffff;
+      border: 1px solid #0ff;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .like-btn:hover {
+      background: #0ff;
+      color: #000;
+    }
+
+    .logout-link {
+      margin-top: 20px;
+      display: inline-block;
+      font-size: 0.9em;
+      color: #00ffff;
+      text-decoration: underline;
+      text-shadow: 0 0 5px #0ff;
     }
   </style>
 </head>
 <body>
 
-  <h1 id="pageTitle">My Profile</h1>
+  <h1>#HUMANITY Social</h1>
 
-  <button id="showRegisterBtn">Register</button>
-  <button id="showLoginBtn">Login</button>
-  <button id="logoutBtn" class="hidden">Logout</button>
-
-  <div id="registerModal" class="hidden">
-    <input id="regEmail" type="email" placeholder="Email" required>
-    <input id="regPassword" type="password" placeholder="Password" required>
-    <input id="regUsername" type="text" placeholder="Display Name" required>
-    <button id="doRegister">Create Account</button>
-    <button onclick="closeModal('registerModal')">Cancel</button>
+  <div class="feed-container">
+    <textarea id="postBox" placeholder="Share your thoughts with the world…"></textarea>
+    <button onclick="submitPost()">Broadcast</button>
   </div>
 
-  <div id="loginModal" class="hidden">
-    <input id="loginEmail" type="email" placeholder="Email" required>
-    <input id="loginPassword" type="password" placeholder="Password" required>
-    <button id="doLogin">Login</button>
-    <button onclick="closeModal('loginModal')">Cancel</button>
-  </div>
+  <div id="feed"></div>
 
-  <div id="editProfile" class="hidden">
-    <label>Username</label>
-    <input id="usernameInput" placeholder="e.g. CypherQueen" required />
+  <a href="index.html" class="logout-link">← Log Out / Back to Access</a>
 
-    <label>Avatar URL</label>
-    <input id="avatarURLInput" placeholder="https://..." />
-
-    <label>Bio</label>
-    <textarea id="bioInput" placeholder="Tell the world who you are…"></textarea>
-
-    <button id="saveProfileBtn">Save Profile</button>
-  </div>
-
-  <div id="viewProfile" class="hidden">
-    <h1 id="viewHandle"></h1>
-    <img id="viewAvatar" class="avatar" src="" alt="Avatar" />
-    <p id="viewBio"></p>
-  </div>
-
-  <a href="social.html" class="back-link">← Back to Feed</a>
-
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <script>
-    const cfg = {
-      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY_HERE", // 👈 Replace with your real API key
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
       projectId: "hashhumanity-58b9a",
       storageBucket: "hashhumanity-58b9a.appspot.com",
       messagingSenderId: "886745899016",
       appId: "1:886745899016:web:2b07e043c2434379d71bd"
     };
-    firebase.initializeApp(cfg);
+
+    firebase.initializeApp(firebaseConfig);
+
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    function showModal(id)  { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-    document.getElementById('showRegisterBtn').addEventListener('click', () => showModal('registerModal'));
-    document.getElementById('showLoginBtn').addEventListener('click', () => showModal('loginModal'));
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-
-    document.getElementById('doRegister').addEventListener('click', () => {
-      const email = document.getElementById('regEmail').value;
-      const pass = document.getElementById('regPassword').value;
-      const username = document.getElementById('regUsername').value;
-      auth.createUserWithEmailAndPassword(email, pass)
-        .then(({ user }) => user.updateProfile({ displayName: username }))
-        .then(() => {
-          alert('Registered as ' + username);
-          closeModal('registerModal');
-        })
-        .catch(e => alert(e.message));
-    });
-
-    document.getElementById('doLogin').addEventListener('click', () => {
-      const email = document.getElementById('loginEmail').value;
-      const pass = document.getElementById('loginPassword').value;
-      auth.signInWithEmailAndPassword(email, pass)
-        .then(() => {
-          alert('Logged in!');
-          closeModal('loginModal');
-        })
-        .catch(e => alert(e.message));
-    });
-
-    auth.onAuthStateChanged(async user => {
-      const showRegBtn = document.getElementById('showRegisterBtn');
-      const showLogBtn = document.getElementById('showLoginBtn');
-      const logoutBtn  = document.getElementById('logoutBtn');
-      const editEl     = document.getElementById('editProfile');
-      const viewEl     = document.getElementById('viewProfile');
-      const titleEl    = document.getElementById('pageTitle');
-
-      if (user) {
-        showRegBtn.classList.add('hidden');
-        showLogBtn.classList.add('hidden');
-        logoutBtn.classList.remove('hidden');
-
-        const doc = await db.collection('users').doc(user.displayName).get();
-        const data = doc.data() || {};
-        const avatar = user.photoURL || data.avatar || '';
-        const bio = data.bio || '';
-
-        document.getElementById('usernameInput').value = user.displayName || '';
-        document.getElementById('avatarURLInput').value = avatar;
-        document.getElementById('bioInput').value = bio;
-
-        editEl.classList.remove('hidden');
-        viewEl.classList.add('hidden');
-        titleEl.textContent = 'Edit Your Profile';
-      } else {
-        showRegBtn.classList.remove('hidden');
-        showLogBtn.classList.remove('hidden');
-        logoutBtn.classList.add('hidden');
-        editEl.classList.add('hidden');
-        viewEl.classList.add('hidden');
-        titleEl.textContent = 'Please Register or Login';
-      }
-    });
-
-    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+    function submitPost() {
       const user = auth.currentUser;
-      const handle = document.getElementById('usernameInput').value.trim();
-      const avatar = document.getElementById('avatarURLInput').value.trim();
-      const bio = document.getElementById('bioInput').value.trim();
+      const content = document.getElementById("postBox").value.trim();
+      if (!content) return;
 
-      if (!user || !handle) {
-        alert('You must be logged in and supply a username');
-        return;
-      }
-
-      await user.updateProfile({ displayName: handle, photoURL: avatar });
-
-      await db.collection('users').doc(handle).set({
-        avatar,
-        bio,
-        updated: firebase.firestore.FieldValue.serverTimestamp()
+      db.collection("posts").add({
+        text: content,
+        author: user?.displayName || "Guest",
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+        likes: 0
+      }).then(() => {
+        document.getElementById("postBox").value = "";
+        loadPosts();
       });
+    }
 
-      document.getElementById('editProfile').classList.add('hidden');
-      document.getElementById('viewProfile').classList.remove('hidden');
-      document.getElementById('viewHandle').textContent = handle;
-      document.getElementById('viewAvatar').src = avatar || 'https://via.placeholder.com/100';
-      document.getElementById('viewBio').textContent = bio;
-      document.getElementById('pageTitle').textContent = 'Your Profile';
+    function likePost(id) {
+      const postRef = db.collection("posts").doc(id);
+      postRef.update({
+        likes: firebase.firestore.FieldValue.increment(1)
+      });
+    }
 
-      alert('Profile saved!');
+    function loadPosts() {
+      db.collection("posts").orderBy("created", "desc").limit(50).onSnapshot(snapshot => {
+        const feed = document.getElementById("feed");
+        feed.innerHTML = "";
+        snapshot.forEach(doc => {
+          const post = doc.data();
+          const div = document.createElement("div");
+          div.className = "post";
+          div.innerHTML = `
+            <h3>${post.author}</h3>
+            <p>${post.text}</p>
+            <button class="like-btn" onclick="likePost('${doc.id}')">❤️ ${post.likes || 0}</button>
+          `;
+          feed.appendChild(div);
+        });
+      });
+    }
+
+    auth.onAuthStateChanged(() => {
+      loadPosts();
     });
   </script>
 </body>

@@ -8,6 +8,8 @@
   <!-- Markdown & Sanitization -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
   <style>
     body {
@@ -18,13 +20,22 @@
       max-width: 800px;
       margin: 0 auto;
     }
-    h1 { text-align: center; color: #fff; }
-    .profile-link {
-      display: block;
+    h1 {
       text-align: center;
-      color: #0ff;
-      margin-bottom: 20px;
-      text-decoration: none;
+      color: #fff;
+      font-size: 3rem;
+    }
+    textarea#postBox {
+      width: 100%;
+      height: 150px;
+      background: #0a0a0a;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 12px;
+      box-sizing: border-box;
+      margin: 20px 0;
+      border-radius: 4px;
+      resize: vertical;
     }
     textarea, input {
       width: 100%;
@@ -35,6 +46,9 @@
       box-sizing: border-box;
       margin-bottom: 10px;
       border-radius: 4px;
+    }
+    .button-group {
+      text-align: center;
     }
     button {
       display: inline-block;
@@ -48,7 +62,10 @@
       box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
       transition: .2s;
     }
-    button:hover { background: #0ff; color: #000; }
+    button:hover {
+      background: #0ff;
+      color: #000;
+    }
     .post {
       background: #111;
       border: 1px solid #333;
@@ -65,253 +82,106 @@
       align-items: center;
     }
     .meta img {
-      width: 24px; height: 24px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       margin-right: 8px;
       border: 1px solid #0ff;
     }
-    .post-content { line-height: 1.4; }
-    .hidden { display: none; }
-
-    /* DM modal */
-    #dm-modal {
-      position: fixed; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111; padding: 20px;
-      border-radius: 6px; z-index: 200;
-      width: 90%; max-width: 300px;
-      box-shadow: 0 0 10px #0ff33;
+    .post-content {
+      line-height: 1.4;
     }
-    #dm-modal h3 { margin-top: 0; color: #0ff; }
-    #dm-modal .actions { text-align: right; }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <h1>#HUMANITY</h1>
-  <a href="profile.html" class="profile-link">✏️ Edit Profile</a>
 
-  <button onclick="showUsernameScreen()">Create Username</button>
-  <div id="username-screen" class="hidden">
-    <h3>Choose Your Username</h3>
-    <input id="usernameInput" placeholder="e.g. NeoCoder" />
-    <button onclick="saveUsername()">Go</button>
+  <div class="button-group">
+    <button onclick="showCreateProfileModal()">🆕 Create Profile</button>
+    <button onclick="showMyProfile()">👤 My Profile</button>
+    <button onclick="showDMModal()">✉️ Message</button>
   </div>
 
   <textarea id="postBox" placeholder="Write your post…"></textarea>
-  <button onclick="submitPost()">Share</button>
+  <div class="button-group">
+    <button onclick="submitPost()">Share</button>
+  </div>
 
   <div id="feed"></div>
 
-  <!-- Direct Messaging UI -->
-  <button onclick="showDMModal()">✉️ New Message</button>
-
-  <div id="dm-modal" class="hidden">
-    <h3>Send a Message</h3>
-    <input id="dm-to" placeholder="Recipient handle" />
-    <textarea id="dm-body" placeholder="Your message…"></textarea>
-    <div class="actions">
-      <button onclick="closeDMModal()">Cancel</button>
-      <button onclick="sendDM()">Send</button>
-    </div>
-  </div>
-
-  <h2 style="color:#0ff; text-align:center;">Your Inbox</h2>
-  <div id="inbox"></div>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
   <script>
-  // Initialize Firebase
-  const firebaseConfig = {
-    apiKey:            "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
-    authDomain:        "hashhumanity-58b9a.firebaseapp.com",
-    projectId:         "hashhumanity-58b9a",
-    storageBucket:     "hashhumanity-58b9a.appspot.com",
-    messagingSenderId: "886745899016",
-    appId:             "1:886745899016:web:2b07e043c2434379d71bd"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain: "hashhumanity-58b9a.firebaseapp.com",
+      projectId: "hashhumanity-58b9a",
+      storageBucket: "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+    };
 
-  try {
     firebase.initializeApp(firebaseConfig);
-  } catch (e) {
-    console.error("🔥 Firebase init failed:", e);
-    alert("Firebase failed to initialize. Check your config.");
-  }
+    const db = firebase.firestore();
 
-  const db = firebase.firestore();
+    function submitPost() {
+      const username = localStorage.getItem('h_username') || 'Anonymous';
+      const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
+      const content = document.getElementById('postBox').value.trim();
+      if (!content) return alert('Write something to post');
 
-  // Markdown → HTML + sanitize
-  function formatContent(md) {
-    const dirty = marked.parse(md);
-    return DOMPurify.sanitize(dirty, {
-      ALLOWED_TAGS: ['b','i','em','strong','a','code','pre','ul','ol','li'],
-      ALLOWED_ATTR: ['href','target']
-    });
-  }
-
-  function showUsernameScreen() {
-    document.getElementById('username-screen').classList.remove('hidden');
-  }
-
-  function saveUsername() {
-    const name = document.getElementById('usernameInput').value.trim();
-    if (!name) return alert('Enter a username');
-    localStorage.setItem('h_username', name);
-    document.getElementById('username-screen').classList.add('hidden');
-    renderFeed();
-    renderInbox();
-  }
-
-  async function submitPost() {
-    const user = localStorage.getItem('h_username');
-    if (!user) return showUsernameScreen();
-
-    const raw = document.getElementById('postBox').value.trim();
-    if (!raw) return;
-
-    const html = formatContent(raw);
-
-    try {
-      await db.collection('posts').add({
-        content: html,
-        author: user,
-        timestamp: Date.now()
-      });
-      console.log(`✅ Post added by ${user}`);
-    } catch (err) {
-      console.error("❌ Failed to submit post:", err);
-      alert("Failed to submit post. Check your internet or Firebase rules.");
-      return;
-    }
-
-    document.getElementById('postBox').value = '';
-    renderFeed();
-  }
-
-  async function renderFeed() {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = '';
-    try {
-      const snap = await db.collection('posts')
-                           .orderBy('timestamp', 'desc')
-                           .get();
-      snap.forEach(doc => {
-        const { author, content, timestamp } = doc.data();
-        const avatar = localStorage.getItem('h_avatar') || 'https://via.placeholder.com/24';
-        const postEl = document.createElement('div');
-        postEl.className = 'post';
-        postEl.innerHTML = `
-          <div class="meta">
-            <img src="${avatar}" alt="avatar" />
-            <strong>${author}</strong> —
-            ${new Date(timestamp).toLocaleString()}
-          </div>
-          <div class="post-content">${content}</div>
-        `;
-        feed.appendChild(postEl);
-      });
-    } catch (err) {
-      console.error("❌ Error loading feed:", err);
-      feed.innerHTML = `<p style="color:red;">Failed to load posts.</p>`;
-    }
-  }
-
-  function showDMModal() {
-    document.getElementById('dm-modal').classList.remove('hidden');
-  }
-
-  function closeDMModal() {
-    document.getElementById('dm-modal').classList.add('hidden');
-  }
-
-  async function sendDM() {
-    const from = localStorage.getItem('h_username');
-    if (!from) {
-      showUsernameScreen();
-      return;
-    }
-
-    const to = document.getElementById('dm-to').value.trim();
-    const raw = document.getElementById('dm-body').value.trim();
-
-    if (!to || !raw) {
-      alert("Fill both fields");
-      return;
-    }
-
-    const content = formatContent(raw);
-    console.log(`📤 Sending message from ${from} to ${to}`, content);
-
-    try {
-      await db.collection('messages').add({
-        from,
-        to,
+      db.collection("posts").add({
+        username,
+        avatar,
         content,
         timestamp: Date.now()
+      }).then(() => {
+        document.getElementById('postBox').value = '';
+        renderFeed();
+      }).catch(err => {
+        console.error('Error posting to Firebase:', err);
+        alert('Failed to post. Check your connection or Firebase setup.');
       });
-      console.log(`✅ Message sent from ${from} to ${to}`);
-      alert(`Message sent to @${to}`);
-      document.getElementById('dm-to').value = '';
-      document.getElementById('dm-body').value = '';
-      closeDMModal();
-      renderInbox();
-    } catch (err) {
-      console.error("❌ Failed to send message:", err);
-      alert("Message failed to send. Check your Firebase rules or try again.");
-    }
-  }
-
-  async function renderInbox() {
-    const user = localStorage.getItem('h_username');
-    const out = document.getElementById('inbox');
-    out.innerHTML = '';
-    if (!user) {
-      out.innerHTML = `<p style="text-align:center;color:#888;">Set your username to see messages.</p>`;
-      return;
     }
 
-    try {
-      const snap = await db.collection('messages')
-                           .where('to','==',user)
-                           .orderBy('timestamp','desc')
-                           .get();
-
-      if (snap.empty) {
-        out.innerHTML = `<p style="text-align:center;color:#888;">No messages yet.</p>`;
-        return;
-      }
-
-      snap.forEach(doc => {
-        const { from, content, timestamp } = doc.data();
-        const el = document.createElement('div');
-        el.className = 'post';
-        el.innerHTML = `
-          <div class="meta">
-            <strong>${from}</strong> → <strong>${user}</strong>
-            — ${new Date(timestamp).toLocaleString()}
-          </div>
-          <div class="post-content">${content}</div>
-        `;
-        out.appendChild(el);
+    function renderFeed() {
+      db.collection("posts").orderBy("timestamp", "desc").get().then(snapshot => {
+        const feed = document.getElementById("feed");
+        feed.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const postEl = document.createElement("div");
+          postEl.className = "post";
+          postEl.innerHTML = `
+            <div class="meta">
+              <img src="${data.avatar}" />
+              <strong>${data.username}</strong> — ${new Date(data.timestamp).toLocaleString()}
+            </div>
+            <div class="post-content">${DOMPurify.sanitize(marked.parse(data.content))}</div>
+          `;
+          feed.appendChild(postEl);
+        });
+      }).catch(err => {
+        console.error('Error loading posts:', err);
+        document.getElementById("feed").innerHTML = '<p style="color:red;">Failed to load posts.</p>';
       });
-    } catch (err) {
-      console.error("❌ Failed to load inbox:", err);
-      out.innerHTML = `<p style="color:red;">Error loading messages.</p>`;
     }
-  }
 
-  // On load
-  window.addEventListener('load', () => {
-    if (localStorage.getItem('h_username')) {
-      document.getElementById('username-screen').classList.add('hidden');
+    function showCreateProfileModal() {
+      alert('Create Profile modal placeholder');
     }
-    renderFeed();
-    renderInbox();
-  });
-</script>
 
+    function showMyProfile() {
+      alert('My Profile modal placeholder');
+    }
+
+    function showDMModal() {
+      alert('Direct Message modal placeholder');
+    }
+
+    window.addEventListener("load", renderFeed);
+  </script>
 </body>
 </html>

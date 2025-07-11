@@ -52,7 +52,12 @@
   <button id="saveBtn">Save Profile</button>
   <button onclick="window.location.href='messages.html'">Go to Messages</button>
   <button onclick="window.location.href='social.html'">← Back to Social</button>
-
+  <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
+<script>
+  document.getElementById('btn-profile-page').addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
+</script>
   <script>
     const avatar = document.getElementById('avatar');
     const usernameInput = document.getElementById('username');

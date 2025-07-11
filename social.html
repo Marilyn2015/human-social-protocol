@@ -73,6 +73,11 @@
   <div id="feedSection"><h2>Latest:</h2><div id="feed"></div></div>
   <div id="profilePage"></div>
   <div><button id="btn-logout">Logout</button></div>
+  document.getElementById('btn-logout').addEventListener('click', () => {
+  localStorage.removeItem('h_username');
+  window.location.href = 'index.html';
+});
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       function getCurrentUser() {

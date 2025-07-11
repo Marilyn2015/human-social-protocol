@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>#HUMANITY Social</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <style>
     body {
@@ -129,13 +129,6 @@
     #editProfileTabBtn {
       margin-bottom: 12px;
     }
-    .guest-link {
-      color: #0ff;
-      text-align: center;
-      margin-top: 16px;
-      display: block;
-      cursor: pointer;
-    }
     #newPostModal, #editProfileModal {
       display: none;
       position: fixed;
@@ -177,7 +170,6 @@
     <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
     <button id="btn-new-note">New Note</button>
     <button id="tab-following">Following</button>
-    <button id="tab-messages">Messages</button>
     <button id="tab-notifications">Notifications</button>
     <button id="tab-universe">Universe</button>
   </div>
@@ -217,6 +209,10 @@
     <h2>Profile Page</h2>
     <input id="profileImageUpload" type="file" accept="image/*">
     <img id="profileImagePreview" src="" alt="Profile Image Preview" style="display:block; margin:12px auto;">
+    
+    <!-- 🎯 New Messages button inside Profile Page -->
+    <button id="profile-messages-btn">Messages</button>
+    <p style="color:#888; font-size:0.9rem; margin-top:8px;">Messages coming soon...</p>
   </div>
 
   <div>
@@ -224,4 +220,3 @@
   </div>
 </body>
 </html>
-

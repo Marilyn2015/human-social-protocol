@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>#HUMANITY Profile</title>
+  <meta charset="UTF-8">
+  <title>Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #000;
@@ -11,90 +11,75 @@
       font-family: 'Courier New', monospace;
       padding: 20px;
       max-width: 600px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #0ff;
+      margin: auto;
       text-align: center;
     }
-    #profileAvatar {
+    h1 { color: #0ff; margin-bottom: 20px; }
+    img#avatar {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       border: 2px solid #0ff;
+      margin-bottom: 12px;
+    }
+    input, textarea, button {
       display: block;
-      margin: 20px auto;
-    }
-    .form-section {
-      margin-bottom: 20px;
-    }
-    input, textarea {
-      width: 100%;
+      width: 90%;
+      max-width: 400px;
+      margin: 10px auto;
       padding: 10px;
       background: #111;
       color: #fff;
       border: 1px solid #0ff;
       border-radius: 4px;
-      margin-top: 10px;
     }
-    button {
+    button:hover {
       background: #0ff;
       color: #000;
-      padding: 10px 16px;
-      border: none;
       cursor: pointer;
-      border-radius: 4px;
-      margin-right: 10px;
     }
   </style>
 </head>
 <body>
   <h1>Your Profile</h1>
-  <img id="profileAvatar" src="https://www.gravatar.com/avatar/?d=mp&s=64" alt="Avatar">
-  <input type="file" id="avatarUpload" accept="image/*" />
-
-  <div class="form-section">
-    <label>Username</label>
-    <input type="text" id="usernameInput" placeholder="Enter username" />
-  </div>
-
-  <div class="form-section">
-    <label>Bio</label>
-    <textarea id="bioInput" placeholder="Tell the world who you are..."></textarea>
-  </div>
-
-  <button id="saveProfile">Save Profile</button>
-  <button onclick="location.href='messages.html'">Messages</button>
-  <button onclick="location.href='social.html'">← Back to Social</button>
+  <img id="avatar" src="" alt="Avatar">
+  <input type="file" id="avatarUpload" accept="image/*">
+  <input type="text" id="username" placeholder="Username">
+  <textarea id="bio" placeholder="Write your bio here..."></textarea>
+  <button id="saveBtn">Save Profile</button>
+  <button onclick="window.location.href='messages.html'">Go to Messages</button>
+  <button onclick="window.location.href='social.html'">← Back to Social</button>
 
   <script>
+    const avatar = document.getElementById('avatar');
+    const usernameInput = document.getElementById('username');
+    const bioInput = document.getElementById('bio');
+
     function loadProfile() {
-      const user = localStorage.getItem('h_username') || 'Guest';
-      const avatar = localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp&s=64';
+      const name = localStorage.getItem('h_username') || 'Anonymous';
       const bio = localStorage.getItem('h_bio') || '';
-      document.getElementById('usernameInput').value = user;
-      document.getElementById('bioInput').value = bio;
-      document.getElementById('profileAvatar').src = avatar;
+      const pic = localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp';
+
+      usernameInput.value = name;
+      bioInput.value = bio;
+      avatar.src = pic;
     }
 
-    document.getElementById('avatarUpload').addEventListener('change', function() {
+    document.getElementById('avatarUpload').addEventListener('change', function () {
       const file = this.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        localStorage.setItem('h_avatar', dataUrl);
-        document.getElementById('profileAvatar').src = dataUrl;
+      reader.onload = function (e) {
+        avatar.src = e.target.result;
+        localStorage.setItem('h_avatar', e.target.result);
       };
       reader.readAsDataURL(file);
     });
 
-    document.getElementById('saveProfile').addEventListener('click', () => {
-      const user = document.getElementById('usernameInput').value.trim();
-      const bio = document.getElementById('bioInput').value.trim();
-      if (user) localStorage.setItem('h_username', user);
-      localStorage.setItem('h_bio', bio);
-      alert('Profile saved.');
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      localStorage.setItem('h_username', usernameInput.value.trim());
+      localStorage.setItem('h_bio', bioInput.value.trim());
+      alert('Profile saved!');
     });
 
     loadProfile();

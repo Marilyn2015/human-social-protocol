@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Messages | #HUMANITY</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #000;
+      color: #e0e0e0;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      text-align: center;
+    }
+    h1 {
+      color: #0ff;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tabs button {
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px 20px;
+      margin: 0 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .tabs button.active {
+      background: #0ff;
+      color: #000;
+    }
+    .message-list {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .message {
+      background: #111;
+      border: 1px solid #333;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+    }
+    .message strong {
+      color: #0ff;
+    }
+    .nav-buttons {
+      margin-top: 30px;
+    }
+    .nav-buttons button {
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .nav-buttons button:hover {
+      background: #0ff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Messages</h1>
+
+  <div class="tabs">
+    <button id="inboxTab" class="active">Inbox</button>
+    <button id="outboxTab">Outbox</button>
+  </div>
+
+  <div class="message-list" id="messageContainer"></div>
+
+  <div class="nav-buttons">
+    <button onclick="window.location.href='profile.html'">← Back to Profile</button>
+    <button onclick="window.location.href='social.html'">← Back to Social</button>
+  </div>
+
+  <script>
+    const inboxMessages = [
+      { from: 'alice', text: 'Hey, welcome to #HUMANITY!' },
+      { from: 'bob', text: 'Loved your last post!' }
+    ];
+
+    const outboxMessages = [
+      { to: 'charlie', text: 'Thanks for the follow!' },
+      { to: 'dave', text: 'Check out my latest note!' }
+    ];
+
+    const inboxTab = document.getElementById('inboxTab');
+    const outboxTab = document.getElementById('outboxTab');
+    const container = document.getElementById('messageContainer');
+
+    function renderMessages(messages, type = 'inbox') {
+      container.innerHTML = messages.map(m =>
+        `<div class="message">
+          <strong>${type === 'inbox' ? 'From' : 'To'}: ${type === 'inbox' ? m.from : m.to}</strong>
+          <p>${m.text}</p>
+        </div>`
+      ).join('');
+    }
+
+    inboxTab.addEventListener('click', () => {
+      inboxTab.classList.add('active');
+      outboxTab.classList.remove('active');
+      renderMessages(inboxMessages, 'inbox');
+    });
+
+    outboxTab.addEventListener('click', () => {
+      outboxTab.classList.add('active');
+      inboxTab.classList.remove('active');
+      renderMessages(outboxMessages, 'outbox');
+    });
+
+    renderMessages(inboxMessages, 'inbox'); // Default load
+  </script>
+</body>
+</html>

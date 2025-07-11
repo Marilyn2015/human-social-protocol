@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>#HUMANITY - Feed</title>
-  <script type="module">
-   <!DOCTYPE html>
-<html lang="en">
-<head>
   <meta charset="UTF-8">
   <title>#HUMANITY Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -79,20 +73,203 @@
   <div id="feedSection"><h2>Latest:</h2><div id="feed"></div></div>
   <div id="profilePage"></div>
   <div><button id="btn-logout">Logout</button></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      function getCurrentUser() {
+        let u = localStorage.getItem('h_username');
+        if (!u) {
+          u = 'anon_' + Math.random().toString(36).substr(2,5);
+          localStorage.setItem('h_username', u);
+        }
+        return u;
+      }
+      function getAvatar() {
+        return localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp&s=64';
+      }
+      function getBio() {
+        return localStorage.getItem('h_bio') || '';
+      }
+      function setAvatar(url) { localStorage.setItem('h_avatar', url); }
+      function setUsername(u) { localStorage.setItem('h_username', u); }
+      function setBio(b) { localStorage.setItem('h_bio', b); }
+
+      let user = getCurrentUser();
+      let avatarUrl = getAvatar();
+      document.getElementById('profileName').textContent = user;
+      document.getElementById('profileAvatar').src = avatarUrl;
+      document.querySelector('#btn-profile-page img').src = avatarUrl;
+
+      let currentTab = 'following';
+      const followingList = JSON.parse(localStorage.getItem('following') || '[]');
+      if (!localStorage.getItem('notes')) {
+        const now = Date.now();
+        const mock = [
+          { user: 'alice', avatar: avatarUrl, note: 'Hello from Alice!', timestamp: now - 600000, likes: 1 },
+          { user: 'bob', avatar: avatarUrl, note: 'Bob says hi to the #HUMANITY community.', timestamp: now - 300000, likes: 2 },
+          { user, avatar: avatarUrl, note: 'My personal note here.', timestamp: now - 100000, likes: 0 }
+        ];
+        localStorage.setItem('notes', JSON.stringify(mock));
+      }
+
+      function loadFeed() {
+        const feed = document.getElementById('feed'); feed.innerHTML = '';
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
+        const displayed = currentTab === 'following'
+          ? sorted.filter(n => followingList.includes(n.user))
+          : sorted;
+        displayed.forEach((n, idx) => {
+          const d = document.createElement('div'); d.className = 'post';
+          d.innerHTML = `
+            <div class="meta"><img src="${DOMPurify.sanitize(n.avatar)}"><strong>${DOMPurify.sanitize(n.user)}</strong></div>
+            <div class="post-content">${DOMPurify.sanitize(n.note)}</div>
+            <div class="post-actions">
+              <button class="action-btn" data-user="${n.user}" data-idx="${idx}" data-action="like">🙌<span class="like-count">${n.likes}</span></button>
+              <button class="action-btn" data-user="${n.user}" data-action="follow">➕</button>
+              <button class="action-btn" data-user="${n.user}" data-action="coin">🪙</button>
+              <button class="action-btn" data-user="${n.user}" data-action="mute">🔇</button>
+            </div>
+          `;
+          feed.appendChild(d);
+        });
+      }
+
+      // Like button support (event delegation)
+      document.getElementById('feed').addEventListener('click', function(e){
+        const btn = e.target.closest('.action-btn');
+        if (!btn) return;
+        if (btn.dataset.action === 'like') {
+          const idx = +btn.dataset.idx;
+          let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+          // sort as in loadFeed
+          const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
+          const post = sorted[idx];
+          if (post) {
+            post.likes = (post.likes || 0) + 1;
+            // Update in master array
+            const masterNotes = JSON.parse(localStorage.getItem('notes') || '[]');
+            const masterIdx = masterNotes.findIndex(n =>
+              n.user === post.user &&
+              n.note === post.note &&
+              n.timestamp === post.timestamp
+            );
+            if (masterIdx > -1) {
+              masterNotes[masterIdx].likes = post.likes;
+              localStorage.setItem('notes', JSON.stringify(masterNotes));
+            }
+          }
+          loadFeed();
+        }
+      });
+
+      function showProfile() {
+        document.getElementById('feedSection').style.display = 'none';
+        document.getElementById('tabButtons').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+        user = getCurrentUser();
+        avatarUrl = getAvatar();
+        let bio = getBio();
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]').filter(n => n.user === user);
+        let html = `
+          <div style="display:flex; align-items:center; gap:18px;">
+            <img src="${avatarUrl}" id="editProfileAvatar" alt="Profile" style="margin-bottom:0;">
+            <div>
+              <div style="font-size:1.3rem; color:#0ff;"><strong id="profile-username">${user}</strong></div>
+              <div id="profileBio">${bio ? DOMPurify.sanitize(bio) : "<span style='color:#888;'>No bio yet.</span>"}</div>
+              <button id="editProfileTabBtn">Edit Profile</button>
+              <button id="sendMsgBtn">Send Message</button>
+            </div>
+          </div>
+          <div style="margin:18px 0 0 0;"><button id="btn-back">Back</button></div>
+          <hr>
+          <h3>Your Notes:</h3>
+          ${notes.map(n => `<div class="post"><div class="post-content">${DOMPurify.sanitize(n.note)}</div></div>`).join('')}
+        `;
+        document.getElementById('profilePage').innerHTML = html;
+        document.getElementById('profilePage').style.display = 'block';
+        document.getElementById('btn-back').onclick = () => {
+          document.getElementById('profilePage').style.display = 'none';
+          document.getElementById('userInfo').style.display = 'none';
+          document.getElementById('tabButtons').style.display = 'flex';
+          document.getElementById('feedSection').style.display = 'block';
+        };
+        document.getElementById('editProfileTabBtn').onclick = showEditProfileModal;
+        document.getElementById('sendMsgBtn').onclick = () => {
+          alert('Direct messaging coming soon!');
+        };
+      }
+
+      function showEditProfileModal() {
+        document.getElementById('editProfileModal').style.display = 'flex';
+        document.getElementById('editUsername').value = getCurrentUser();
+        document.getElementById('editBio').value = getBio();
+        document.getElementById('avatarPreview').src = getAvatar();
+      }
+      document.getElementById('saveProfileBtn').onclick = () => {
+        // Save username, bio, avatar
+        const newUsername = document.getElementById('editUsername').value.trim() || 'anon_' + Math.random().toString(36).substr(2,5);
+        const newBio = document.getElementById('editBio').value.trim();
+        setUsername(newUsername);
+        setBio(newBio);
+        document.getElementById('editProfileModal').style.display = 'none';
+        location.reload();
+      };
+      document.getElementById('cancelProfileBtn').onclick = () => {
+        document.getElementById('editProfileModal').style.display = 'none';
+      };
+      document.getElementById('avatarUpload').addEventListener('change', function(){
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e){
+          setAvatar(e.target.result);
+          document.getElementById('avatarPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('btn-profile-page').addEventListener('click', showProfile);
+      document.getElementById('btn-logout').addEventListener('click', () => {
+        // Only remove username, not all data
+        localStorage.removeItem('h_username');
+        window.location.href = 'index.html';
+      });
+      ['following','universe','messages','notifications'].forEach(tab => {
+        document.getElementById('tab-' + tab).addEventListener('click', () => {
+          currentTab = tab;
+          document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
+          document.getElementById('tab-' + tab).classList.add('active-tab');
+          document.getElementById('profilePage').style.display = 'none';
+          loadFeed();
+        });
+      });
+      document.querySelector('#newPostModal').style.display = 'none';
+      document.getElementById('btn-new-note').addEventListener('click', () => document.getElementById('newPostModal').style.display = 'flex');
+
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => document.getElementById('newPostModal').style.display = 'none');
+      }
+
+      document.getElementById('modalShareBtn').addEventListener('click', () => {
+        const txt = document.getElementById('modalPostBox').value.trim(); if (!txt) return;
+        const notesArr = JSON.parse(localStorage.getItem('notes') || '[]');
+        notesArr.unshift({ user: getCurrentUser(), avatar: getAvatar(), note: txt, timestamp: Date.now(), likes: 0 });
+        localStorage.setItem('notes', JSON.stringify(notesArr));
+        document.getElementById('modalPostBox').value = '';
+        document.getElementById('newPostModal').style.display = 'none';
+        loadFeed();
+      });
+
+      // Guest access link
+      document.getElementById('guest-link').onclick = function(e){
+        e.preventDefault();
+        localStorage.setItem('h_username', 'anon_' + Math.random().toString(36).substr(2,5));
+        window.location.href = 'social.html';
+      };
+
+      loadFeed();
+    });
   </script>
-</head>
-<body>
-  <h1 id="welcome">Loading...</h1>
-  <button onclick="logout()">Logout</button>
-
-  <form id="postForm">
-    <input id="postInput" placeholder="What's on your mind?" required />
-    <input type="file" id="imageUpload" accept="image/*" />
-    <button type="submit">Post</button>
-  </form>
-
-  <div id="feed"><h3>Global Feed</h3></div>
-  <hr />
-  <div id="userPosts"></div>
 </body>
 </html>

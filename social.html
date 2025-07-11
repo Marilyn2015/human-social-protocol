@@ -50,7 +50,8 @@
     <div class="modal-content">
       <h3>New Note</h3>
       <textarea id="modalPostBox" placeholder="Write your note..." style="width:100%;height:120px;"></textarea>
-      <div class="button-group">
+      <input type="file" id="modalImageInput" accept="image/*" style="margin-top:10px;">
+      <div class="button-group" style="margin-top:12px;">
         <button id="modalShareBtn">Share</button>
         <button id="modalCancelBtn" type="button">Cancel</button>
       </div>
@@ -122,6 +123,7 @@
           d.innerHTML = `
             <div class="meta"><img src="${DOMPurify.sanitize(n.avatar)}"><strong>${DOMPurify.sanitize(n.user)}</strong></div>
             <div class="post-content">${DOMPurify.sanitize(n.note)}</div>
+            ${n.image ? `<img src="${DOMPurify.sanitize(n.image)}" style="margin-top:10px;max-width:100%;border-radius:6px;">` : ''}
             <div class="post-actions">
               <button class="action-btn" data-user="${n.user}" data-idx="${idx}" data-action="like">🙌<span class="like-count">${n.likes}</span></button>
               <button class="action-btn" data-user="${n.user}" data-action="follow">➕</button>
@@ -133,19 +135,16 @@
         });
       }
 
-      // Like button support (event delegation)
       document.getElementById('feed').addEventListener('click', function(e){
         const btn = e.target.closest('.action-btn');
         if (!btn) return;
         if (btn.dataset.action === 'like') {
           const idx = +btn.dataset.idx;
           let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-          // sort as in loadFeed
           const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
           const post = sorted[idx];
           if (post) {
             post.likes = (post.likes || 0) + 1;
-            // Update in master array
             const masterNotes = JSON.parse(localStorage.getItem('notes') || '[]');
             const masterIdx = masterNotes.findIndex(n =>
               n.user === post.user &&
@@ -204,8 +203,8 @@
         document.getElementById('editBio').value = getBio();
         document.getElementById('avatarPreview').src = getAvatar();
       }
+
       document.getElementById('saveProfileBtn').onclick = () => {
-        // Save username, bio, avatar
         const newUsername = document.getElementById('editUsername').value.trim() || 'anon_' + Math.random().toString(36).substr(2,5);
         const newBio = document.getElementById('editBio').value.trim();
         setUsername(newUsername);
@@ -213,9 +212,11 @@
         document.getElementById('editProfileModal').style.display = 'none';
         location.reload();
       };
+
       document.getElementById('cancelProfileBtn').onclick = () => {
         document.getElementById('editProfileModal').style.display = 'none';
       };
+
       document.getElementById('avatarUpload').addEventListener('change', function(){
         const file = this.files[0];
         if (!file) return;
@@ -229,12 +230,12 @@
 
       document.getElementById('btn-profile-page').addEventListener('click', showProfile);
       document.getElementById('btn-logout').addEventListener('click', () => {
-        // Only remove username, not all data
         localStorage.removeItem('h_username');
         window.location.href = 'login.html';
       });
+
       ['following','universe','messages','notifications'].forEach(tab => {
-        document.getElementById('tab-' + tab).addEventListener('click', () => {
+        document.getElementById('tab-' + tab)?.addEventListener('click', () => {
           currentTab = tab;
           document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
           document.getElementById('tab-' + tab).classList.add('active-tab');
@@ -242,30 +243,45 @@
           loadFeed();
         });
       });
-      document.querySelector('#newPostModal').style.display = 'none';
-      document.getElementById('btn-new-note').addEventListener('click', () => document.getElementById('newPostModal').style.display = 'flex');
 
-      const cancelBtn = document.getElementById('modalCancelBtn');
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => document.getElementById('newPostModal').style.display = 'none');
-      }
-
-      document.getElementById('modalShareBtn').addEventListener('click', () => {
-        const txt = document.getElementById('modalPostBox').value.trim(); if (!txt) return;
-        const notesArr = JSON.parse(localStorage.getItem('notes') || '[]');
-        notesArr.unshift({ user: getCurrentUser(), avatar: getAvatar(), note: txt, timestamp: Date.now(), likes: 0 });
-        localStorage.setItem('notes', JSON.stringify(notesArr));
-        document.getElementById('modalPostBox').value = '';
-        document.getElementById('newPostModal').style.display = 'none';
-        loadFeed();
+      document.getElementById('btn-new-note').addEventListener('click', () => {
+        document.getElementById('newPostModal').style.display = 'flex';
       });
 
-      // Guest access link
-      document.getElementById('guest-link').onclick = function(e){
-        e.preventDefault();
-        localStorage.setItem('h_username', 'anon_' + Math.random().toString(36).substr(2,5));
-        window.location.href = 'social.html';
-      };
+      document.getElementById('modalCancelBtn').addEventListener('click', () => {
+        document.getElementById('newPostModal').style.display = 'none';
+      });
+
+      document.getElementById('modalShareBtn').addEventListener('click', () => {
+        const txt = document.getElementById('modalPostBox').value.trim();
+        const imgInput = document.getElementById('modalImageInput');
+        if (!txt && !imgInput.files[0]) return;
+
+        const notesArr = JSON.parse(localStorage.getItem('notes') || '[]');
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          notesArr.unshift({
+            user: getCurrentUser(),
+            avatar: getAvatar(),
+            note: txt,
+            timestamp: Date.now(),
+            likes: 0,
+            image: e.target.result || null
+          });
+          localStorage.setItem('notes', JSON.stringify(notesArr));
+          document.getElementById('modalPostBox').value = '';
+          imgInput.value = '';
+          document.getElementById('newPostModal').style.display = 'none';
+          loadFeed();
+        };
+
+        if (imgInput.files[0]) {
+          reader.readAsDataURL(imgInput.files[0]);
+        } else {
+          reader.onload({ target: { result: null } });
+        }
+      });
 
       loadFeed();
     });

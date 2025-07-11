@@ -231,7 +231,6 @@
       document.getElementById('btn-profile-page').addEventListener('click', showProfile);
       document.getElementById('btn-logout').addEventListener('click', () => {
         localStorage.removeItem('h_username');
-        window.location.href = 'login.html';
       });
 
       ['following','universe','messages','notifications'].forEach(tab => {

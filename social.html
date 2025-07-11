@@ -29,7 +29,7 @@
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
     const firebaseConfig = {
-       apiKey: "AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A", // <== IMPORTANT: Replace this
+      apiKey: "AIzaSyBT7P7DAfV-I9ESe6f9Jdp5ioCyGIK0d9A",
       authDomain: "hashhumanity-58b9a.firebaseapp.com",
       projectId: "hashhumanity-58b9a",
       storageBucket: "hashhumanity-58b9a.appspot.com",
@@ -37,104 +37,104 @@
       appId: "1:886745899016:web:2b07e043c2434379d"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    document.addEventListener("DOMContentLoaded", () => {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
 
-    const postForm = document.getElementById("postForm");
-    const feed = document.getElementById("feed");
-    const userPosts = document.getElementById("userPosts");
+      const postForm = document.getElementById("postForm");
+      const feed = document.getElementById("feed");
+      const userPosts = document.getElementById("userPosts");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        document.getElementById("welcome").innerText = `Welcome, ${user.email}`;
+        await loadPosts();
+        await loadUserPosts();
+      });
+
+      async function createPost(event) {
+        event.preventDefault();
+        const user = auth.currentUser;
+        const postText = document.getElementById("postInput").value;
+        const imageFile = document.getElementById("imageUpload").files[0];
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data();
+
+        let imageUrl = null;
+        if (imageFile) {
+          const imageRef = ref(storage, `posts/${user.uid}/${Date.now()}_${imageFile.name}`);
+          await uploadBytes(imageRef, imageFile);
+          imageUrl = await getDownloadURL(imageRef);
+        }
+
+        await addDoc(collection(db, "posts"), {
+          uid: user.uid,
+          displayName: userData.displayName,
+          content: postText,
+          imageUrl: imageUrl || null,
+          timestamp: new Date()
+        });
+
+        document.getElementById("postInput").value = "";
+        document.getElementById("imageUpload").value = "";
+        await loadPosts();
+        await loadUserPosts();
+      }
+
+      async function loadPosts() {
+        feed.innerHTML = "";
+        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+        snap.forEach(doc => {
+          const post = doc.data();
+          const div = document.createElement("div");
+          div.innerHTML = `<strong>${post.displayName}:</strong> ${post.content}`;
+          if (post.imageUrl) {
+            const img = document.createElement("img");
+            img.src = post.imageUrl;
+            img.style.maxWidth = "300px";
+            img.style.display = "block";
+            img.style.marginTop = "10px";
+            div.appendChild(img);
+          }
+          feed.appendChild(div);
+        });
+      }
+
+      async function loadUserPosts() {
+        const user = auth.currentUser;
+        const q = query(collection(db, "posts"), where("uid", "==", user.uid), orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+        userPosts.innerHTML = "<h3>Your Posts</h3>";
+        snap.forEach(doc => {
+          const post = doc.data();
+          const div = document.createElement("div");
+          div.innerHTML = `<strong>${post.displayName}:</strong> ${post.content}`;
+          if (post.imageUrl) {
+            const img = document.createElement("img");
+            img.src = post.imageUrl;
+            img.style.maxWidth = "300px";
+            img.style.display = "block";
+            img.style.marginTop = "10px";
+            div.appendChild(img);
+          }
+          userPosts.appendChild(div);
+        });
+      }
+
+      postForm.addEventListener("submit", createPost);
+      window.logout = async () => {
+        await signOut(auth);
         window.location.href = "index.html";
-        return;
-      }
-
-      document.getElementById("welcome").innerText = `Welcome, ${user.email}`;
-      await loadPosts();
-      await loadUserPosts();
+      };
     });
-
-    async function createPost(event) {
-      event.preventDefault();
-      const user = auth.currentUser;
-      const postText = document.getElementById("postInput").value;
-      const imageFile = document.getElementById("imageUpload").files[0];
-
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      const userData = userDoc.data();
-
-      let imageUrl = null;
-      if (imageFile) {
-        const imageRef = ref(storage, `posts/${user.uid}/${Date.now()}_${imageFile.name}`);
-        await uploadBytes(imageRef, imageFile);
-        imageUrl = await getDownloadURL(imageRef);
-      }
-
-      await addDoc(collection(db, "posts"), {
-        uid: user.uid,
-        displayName: userData.displayName,
-        content: postText,
-        imageUrl: imageUrl || null,
-        timestamp: new Date()
-      });
-
-      document.getElementById("postInput").value = "";
-      document.getElementById("imageUpload").value = "";
-      await loadPosts();
-      await loadUserPosts();
-    }
-
-    async function loadPosts() {
-      feed.innerHTML = "";
-      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-      const snap = await getDocs(q);
-      snap.forEach(doc => {
-        const post = doc.data();
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${post.displayName}:</strong> ${post.content}`;
-        if (post.imageUrl) {
-          const img = document.createElement("img");
-          img.src = post.imageUrl;
-          img.style.maxWidth = "300px";
-          img.style.display = "block";
-          img.style.marginTop = "10px";
-          div.appendChild(img);
-        }
-        feed.appendChild(div);
-      });
-    }
-
-    async function loadUserPosts() {
-      const user = auth.currentUser;
-      const q = query(collection(db, "posts"), where("uid", "==", user.uid), orderBy("timestamp", "desc"));
-      const snap = await getDocs(q);
-      userPosts.innerHTML = "<h3>Your Posts</h3>";
-      snap.forEach(doc => {
-        const post = doc.data();
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${post.displayName}:</strong> ${post.content}`;
-        if (post.imageUrl) {
-          const img = document.createElement("img");
-          img.src = post.imageUrl;
-          img.style.maxWidth = "300px";
-          img.style.display = "block";
-          img.style.marginTop = "10px";
-          div.appendChild(img);
-        }
-        userPosts.appendChild(div);
-      });
-    }
-
-    async function logout() {
-      await signOut(auth);
-      window.location.href = "index.html";
-    }
-
-    postForm.addEventListener("submit", createPost);
-    window.logout = logout;
   </script>
 </head>
 <body>

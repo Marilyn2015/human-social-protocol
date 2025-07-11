@@ -1,60 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Following | #HUMANITY</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #000;
       color: #e0e0e0;
       font-family: 'Courier New', monospace;
       padding: 20px;
-      max-width: 700px;
+      max-width: 600px;
       margin: auto;
+      text-align: center;
     }
     h1 {
       color: #0ff;
-      text-align: center;
       margin-bottom: 20px;
     }
-    .user-following {
-      border: 1px solid #333;
+    .user-card {
       background: #111;
-      padding: 12px;
+      border: 1px solid #0ff;
       border-radius: 6px;
-      margin-bottom: 14px;
-    }
-    .user-following h2 {
-      color: #0ff;
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-    }
-    .user-following p {
-      margin: 4px 0;
-    }
-    .post {
-      background: #0a0a0a;
       padding: 10px;
-      margin-top: 8px;
-      border-radius: 4px;
-      border: 1px solid #222;
+      margin: 10px 0;
     }
     button {
-      margin-top: 20px;
-      background: #000;
-      border: 1px solid #0ff;
-      color: #0ff;
-      padding: 10px 16px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      padding: 6px 12px;
       border-radius: 4px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
       cursor: pointer;
     }
     button:hover {
-      background: #0ff;
-      color: #000;
+      background: #00cccc;
     }
   </style>
 </head>
@@ -64,33 +44,16 @@
   <button onclick="window.location.href='profile.html'">← Back to Profile</button>
 
   <script>
-    const followingList = JSON.parse(localStorage.getItem('following') || '[]');
-    const allNotes = JSON.parse(localStorage.getItem('notes') || '[]');
-
     const container = document.getElementById('followingList');
-    if (followingList.length === 0) {
-      container.innerHTML = "<p>You aren't following anyone yet.</p>";
+    const following = JSON.parse(localStorage.getItem('following') || '[]');
+    if (following.length === 0) {
+      container.innerHTML = '<p>You are not following anyone yet.</p>';
     } else {
-      followingList.forEach(user => {
-        const posts = allNotes.filter(n => n.user === user);
-        const userDiv = document.createElement('div');
-        userDiv.className = 'user-following';
-        userDiv.innerHTML = `<h2>${user}</h2>`;
-
-        if (posts.length === 0) {
-          userDiv.innerHTML += `<p>No posts yet.</p>`;
-        } else {
-          posts.forEach(p => {
-            userDiv.innerHTML += `
-              <div class="post">
-                <p>${p.note}</p>
-                <p style="font-size: 0.75rem; color: #888;">${new Date(p.timestamp).toLocaleString()}</p>
-              </div>`;
-          });
-        }
-
-        container.appendChild(userDiv);
-      });
+      container.innerHTML = following.map(user => `
+        <div class="user-card">
+          <strong>${user}</strong>
+        </div>
+      `).join('');
     }
   </script>
 </body>

@@ -236,14 +236,20 @@
         window.location.href = 'login.html';
       });
       ['following','universe','messages','notifications'].forEach(tab => {
-        document.getElementById('tab-' + tab).addEventListener('click', () => {
-          currentTab = tab;
-          document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
-          document.getElementById('tab-' + tab).classList.add('active-tab');
-          document.getElementById('profilePage').style.display = 'none';
-          loadFeed();
-        });
-      });
+  document.getElementById('tab-' + tab).addEventListener('click', () => {
+    currentTab = tab;
+    document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
+    document.getElementById('tab-' + tab).classList.add('active-tab');
+    document.getElementById('profilePage').style.display = 'none';
+
+    if (tab === 'messages') {
+      loadMessages();
+    } else {
+      loadFeed();
+    }
+  });
+});
+
       document.querySelector('#newPostModal').style.display = 'none';
       document.getElementById('btn-new-note').addEventListener('click', () => document.getElementById('newPostModal').style.display = 'flex');
 

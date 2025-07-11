@@ -9,44 +9,64 @@
     body {
       background: #000;
       color: #e0e0e0;
-      font-family: 'Courier New', monospace;
+      font-family: Tahoma, sans-serif;
       padding: 40px 20px;
       max-width: 800px;
       margin: 0 auto;
     }
     h1 {
       text-align: center;
-      color: #0ff;
+      color: #fff;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #0ff;
+    }
+    #tabButtons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 20px;
     }
-    button, input, textarea {
-      background: #111;
+    button {
+      background: #000;
       color: #fff;
       border: 1px solid #0ff;
       border-radius: 4px;
-      padding: 10px;
-      font-family: inherit;
-      margin: 5px 0;
+      padding: 0 12px;
+      height: 40px;
+      cursor: pointer;
+      box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
+      transition: .2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button:hover {
+      background: #0ff;
+      color: #000;
+    }
+    textarea, input[type="text"], input[type="file"] {
       width: 100%;
-      max-width: 500px;
+      background: #0a0a0a;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 4px;
       box-sizing: border-box;
-    }
-    textarea {
       resize: vertical;
-      min-height: 80px;
     }
-    .post {
-      background: #111;
-      border: 1px solid #0ff;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 6px;
+    input[type="text"] {
+      height: 36px;
     }
-    .modal {
+    #newPostModal, #editProfileModal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       background: rgba(0,0,0,0.8);
       justify-content: center;
       align-items: center;
@@ -59,93 +79,135 @@
       width: 90%;
       max-width: 500px;
     }
-    #editProfileModal input[type="file"] {
-      background: #222;
-      color: #fff;
+    #userInfo {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
     }
-    .active-tab {
-      background: #0ff;
-      color: #000;
+    #feedSection {
+      margin-top: 20px;
     }
-    .logout-btn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: #222;
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
+    #profilePage {
+      margin-top: 40px;
+    }
+    #profileImagePreview, #postPreviewImage {
+      display: none;
+      max-width: 100%;
+      margin-top: 12px;
+      border-radius: 8px;
+    }
+    .guest-link {
+      color: #0ff;
+      text-align: center;
+      margin-top: 16px;
+      display: block;
       cursor: pointer;
-      font-family: 'Courier New', monospace;
     }
   </style>
 </head>
 <body>
+  <h1>#HUMANITY</h1>
 
-  <button class="logout-btn" onclick="logout()">Log Out</button>
-
-  <h1>#HUMANITY Social</h1>
-
-  <div>
-    <textarea id="postContent" placeholder="What's on your mind?"></textarea>
-    <input type="file" id="postImage">
-    <button onclick="sharePost()">Share</button>
+  <div id="userInfo">
+    <img id="profileAvatar" src="" alt="Avatar">
+    <span id="profileName"></span>
   </div>
 
-  <div id="postsContainer"></div>
+  <div id="tabButtons">
+    <button id="btn-profile-page">Profile</button>
+    <button id="btn-new-note">New Note</button>
+    <button id="tab-following">Following</button>
+    <button id="tab-messages">Messages</button>
+    <button id="tab-notifications">Notifications</button>
+    <button id="tab-universe">Universe</button>
+  </div>
 
   <!-- New Post Modal -->
-  <div id="newPostModal" class="modal">
+  <div id="newPostModal">
     <div class="modal-content">
-      <h2>Create Post</h2>
-      <textarea placeholder="Write your post..."></textarea>
-      <button>Post</button>
+      <h3>New Note</h3>
+      <input id="postImageUpload" type="file" accept="image/*">
+      <img id="postPreviewImage" src="" alt="Post Preview">
+      <textarea id="modalPostBox" placeholder="Write your note..." style="height:120px;"></textarea>
+      <div class="button-group">
+        <button id="modalShareBtn">Share</button>
+        <button id="modalCancelBtn" type="button">Cancel</button>
+      </div>
     </div>
   </div>
 
   <!-- Edit Profile Modal -->
-  <div id="editProfileModal" class="modal">
+  <div id="editProfileModal">
     <div class="modal-content">
-      <h2>Edit Profile</h2>
-      <input type="text" placeholder="Username">
-      <input type="file">
-      <button>Save</button>
+      <h3>Edit Profile</h3>
+      <input id="avatarUpload" type="file" accept="image/*">
+      <img id="avatarPreview" src="" alt="Avatar Preview" style="display:block; margin:12px auto;">
+      <input id="editUsername" type="text" maxlength="32" placeholder="Username">
+      <textarea id="editBio" maxlength="180" placeholder="About/Bio"></textarea>
+      <div style="text-align:right;">
+        <button id="saveProfileBtn">Save</button>
+        <button id="cancelProfileBtn" type="button">Cancel</button>
+      </div>
     </div>
   </div>
 
+  <!-- Feed Section -->
+  <div id="feedSection">
+    <h2>Latest:</h2>
+    <div id="feed"></div>
+  </div>
+
+  <!-- Profile Page -->
+  <div id="profilePage">
+    <h2>Profile Page</h2>
+    <input id="profileImageUpload" type="file" accept="image/*">
+    <img id="profileImagePreview" src="" alt="Profile Image Preview">
+    <input id="profileUsername" type="text" placeholder="Username">
+    <textarea id="profileBio" placeholder="Your bio..."></textarea>
+  </div>
+
+  <div><button id="btn-logout">Logout</button></div>
+  <div><a href="#" id="guest-link" class="guest-link">Continue as Guest</a></div>
+
   <script>
-    function logout() {
-      // Add Firebase signOut() here if needed
-      window.location.href = "index.html";
-    }
-
-    function sharePost() {
-      const content = DOMPurify.sanitize(document.getElementById('postContent').value);
-      const image = document.getElementById('postImage').files[0];
-
-      const postContainer = document.getElementById('postsContainer');
-      const postDiv = document.createElement('div');
-      postDiv.className = 'post';
-
-      postDiv.innerHTML = `<p>${content}</p>`;
-
-      if (image) {
+    // Profile image preview
+    document.getElementById('profileImageUpload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.style.maxWidth = '100%';
-          postDiv.appendChild(img);
+        reader.onload = function(evt) {
+          const preview = document.getElementById('profileImagePreview');
+          preview.src = evt.target.result;
+          preview.style.display = 'block';
         };
-        reader.readAsDataURL(image);
+        reader.readAsDataURL(file);
       }
+    });
 
-      postContainer.prepend(postDiv);
-      document.getElementById('postContent').value = '';
-      document.getElementById('postImage').value = '';
-    }
+    // New post image preview
+    document.getElementById('postImageUpload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const preview = document.getElementById('postPreviewImage');
+          preview.src = evt.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Modal open/close logic
+    document.getElementById('btn-new-note').onclick = () => {
+      document.getElementById('newPostModal').style.display = 'flex';
+    };
+    document.getElementById('modalCancelBtn').onclick = () => {
+      document.getElementById('newPostModal').style.display = 'none';
+      document.getElementById('modalPostBox').value = '';
+      document.getElementById('postPreviewImage').style.display = 'none';
+    };
   </script>
-
 </body>
 </html>

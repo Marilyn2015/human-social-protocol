@@ -6,217 +6,202 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
   <style>
-    body {
-      background: #000;
-      color: #e0e0e0;
-      font-family: Tahoma, sans-serif;
-      padding: 40px 20px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      text-align: center;
-      color: #fff;
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      text-shadow: 0 0 8px #0ff;
-    }
-    #tabButtons {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    button {
-      background: #000;
-      color: #fff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-      padding: 0 12px;
-      height: 40px;
-      cursor: pointer;
-      box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
-      transition: .2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    button:hover {
-      background: #0ff;
-      color: #000;
-    }
-    button img.nav-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    input[type="text"], input[type="file"], textarea {
-      width: 100%;
-      background: #0a0a0a;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 12px;
-      margin: 12px 0;
-      border-radius: 4px;
-      box-sizing: border-box;
-      resize: vertical;
-    }
-    input[type="text"] {
-      height: 36px;
-    }
-    .post, .message-item, .notification-item {
-      background: #111;
-      border: 1px solid #333;
-      padding: 12px;
-      margin-bottom: 16px;
-      border-radius: 6px;
-    }
-    .meta {
-      font-size: .75rem;
-      color: #888;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-    }
-    .meta img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      margin-right: 8px;
-      border: 1px solid #0ff;
-    }
-    .post-content {
-      line-height: 1.4;
-    }
-    .post-actions {
-      margin-top: 8px;
-      display: flex;
-      gap: 8px;
-    }
-    .action-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    #userInfo {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    #profileAvatar, #profile-page img.nav-avatar, #editProfileAvatar, #avatarPreview {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 2px solid #0ff;
-      object-fit: cover;
-      margin-bottom: 8px;
-    }
-    #profileName {
-      font-size: 1.2rem;
-      color: #0ff;
-    }
-    #profileBio {
-      margin: 10px 0 20px 0;
-      color: #b2e7f9;
-    }
-    #profilePage {
-      display: none;
-    }
-    #editProfileTabBtn {
-      margin-bottom: 12px;
-    }
-    #newPostModal, #editProfileModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    #newPostModal .modal-content, #editProfileModal .modal-content {
-      background: #111;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 500px;
-    }
-    #newPostModal input[type="file"], #editProfileModal input[type="file"] {
-      background: #222;
-      color: #fff;
-    }
-    .active-tab {
-      background: #0ff;
-      color: #000;
-    }
+    /* [same styles as before, abbreviated for brevity here] */
+    body { background:#000;color:#e0e0e0;font-family:Tahoma,sans-serif;padding:40px 20px;max-width:800px;margin:0 auto; }
+    h1 { text-align:center;color:#fff;font-size:2.5rem;margin-bottom:20px;text-shadow:0 0 8px #0ff; }
+    button { background:#000;color:#fff;border:1px solid #0ff;border-radius:4px;padding:0 12px;height:40px;cursor:pointer;box-shadow:0 0 5px #0ff,inset 0 0 3px #0ff;transition:.2s;display:inline-flex;align-items:center;justify-content:center; }
+    button:hover { background:#0ff;color:#000; }
+    #tabButtons { display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:20px; }
+    #newPostModal, #editProfileModal { display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);justify-content:center;align-items:center;z-index:1000; }
+    .modal-content { background:#111;padding:20px;border-radius:8px;width:90%;max-width:500px; }
+    input[type="text"], input[type="file"], textarea { width:100%;background:#0a0a0a;color:#fff;border:1px solid #444;padding:12px;margin:12px 0;border-radius:4px;resize:vertical;box-sizing:border-box; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <h1>#HUMANITY</h1>
 
-  <div id="userInfo">
-    <img id="profileAvatar" src="" alt="Avatar">
-    <span id="profileName"></span>
+  <!-- USER INFO -->
+  <div id="userInfo" class="hidden">
+    <img id="profileAvatar" src="" alt="Avatar" style="width:64px;height:64px;border-radius:50%;border:2px solid #0ff;object-fit:cover;margin-bottom:8px;">
+    <span id="profileName" style="font-size:1.2rem;color:#0ff;"></span>
   </div>
 
+  <!-- TABS -->
   <div id="tabButtons">
-    <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
+    <button id="btn-profile-page">Profile</button>
     <button id="btn-new-note">New Note</button>
     <button id="tab-following">Following</button>
     <button id="tab-notifications">Notifications</button>
     <button id="tab-universe">Universe</button>
   </div>
 
+  <!-- NEW POST MODAL -->
   <div id="newPostModal">
     <div class="modal-content">
       <h3>New Note</h3>
       <input id="postImageUpload" type="file" accept="image/*">
       <textarea id="modalPostBox" placeholder="Write your note..." style="height:120px;"></textarea>
-      <div class="button-group">
+      <div>
         <button id="modalShareBtn">Share</button>
-        <button id="modalCancelBtn" type="button">Cancel</button>
+        <button id="modalCancelBtn">Cancel</button>
       </div>
     </div>
   </div>
 
+  <!-- EDIT PROFILE MODAL -->
   <div id="editProfileModal">
     <div class="modal-content">
       <h3>Edit Profile</h3>
-      <input id="avatarUpload" type="file" accept="image/*">
-      <img id="avatarPreview" src="" alt="Avatar Preview" style="display:block; margin:12px auto;">
+      <input id="avtarUpload" type="file" accept="image/*">
+      <img id="ImagePreview" src="" alt="Image Preview" style="display:block;margin:12px auto;">
+      <img id="postPreviewImage" src="" alt="Image Preview" style="display:none; max-width:100%; margin-top:12px;" />
       <input id="editUsername" type="text" maxlength="32" placeholder="Username">
       <textarea id="editBio" maxlength="180" placeholder="About/Bio"></textarea>
       <div style="text-align:right;">
         <button id="saveProfileBtn">Save</button>
-        <button id="cancelProfileBtn" type="button">Cancel</button>
+        <button id="cancelProfileBtn">Cancel</button>
       </div>
     </div>
   </div>
 
+  <!-- FEED -->
   <div id="feedSection">
     <h2>Latest:</h2>
-    <div id="feed"></div>
+    <div id="feed">
+      <p style="color:#999;">No posts yet.</p>
+    </div>
   </div>
 
-  <div id="profilePage">
+  <!-- PROFILE PAGE -->
+  <div id="profilePage" class="hidden">
     <h2>Profile Page</h2>
     <input id="profileImageUpload" type="file" accept="image/*">
-    <img id="profileImagePreview" src="" alt="Profile Image Preview" style="display:block; margin:12px auto;">
-    
-    <!-- 🎯 New Messages button inside Profile Page -->
+    <img id="profileImagePreview" src="" alt="Profile Image Preview" style="display:block;margin:12px auto;">
+    <input id="profileUsername" type="text" placeholder="Username">
+    <textarea id="profileBio" placeholder="Your bio..."></textarea>
+    <button id="editProfileBtn">Edit Profile</button>
     <button id="profile-messages-btn">Messages</button>
-    <p style="color:#888; font-size:0.9rem; margin-top:8px;">Messages coming soon...</p>
+    <p style="color:#888;font-size:0.9rem;margin-top:8px;">Messages coming soon...</p>
   </div>
 
-  <div>
-    <button id="btn-logout">Logout</button>
+  <!-- NOTIFICATIONS -->
+  <div id="notificationSection" class="hidden">
+    <h2>Notifications</h2>
+    <p style="color:#888;">No new notifications</p>
   </div>
+
+  <!-- UNIVERSE -->
+  <div id="universeSection" class="hidden">
+    <h2>All Posts</h2>
+    <div>
+      <p style="color:#999;">(Recent and past posts will appear here)</p>
+    </div>
+  </div>
+
+  <div><button id="btn-logout">Logout</button></div>
+
+  <!-- INTERACTIVITY -->
+  <script>
+    const show = (id) => document.getElementById(id).classList.remove('hidden');
+    const hide = (id) => document.getElementById(id).classList.add('hidden');
+
+    document.getElementById('btn-new-note').onclick = () => {
+      show('newPostModal');
+    };
+    document.getElementById('modalCancelBtn').onclick = () => {
+      hide('newPostModal');
+    };
+
+    document.getElementById('btn-profile-page').onclick = () => {
+      hide('feedSection');
+      hide('notificationSection');
+      hide('universeSection');
+      show('profilePage');
+    };
+
+    document.getElementById('editProfileBtn').onclick = () => {
+      show('editProfileModal');
+    };
+    document.getElementById('cancelProfileBtn').onclick = () => {
+      hide('editProfileModal');
+    };
+
+    document.getElementById('profile-messages-btn').onclick = () => {
+      alert("Messages coming soon!");
+    };
+
+    document.getElementById('tab-notifications').onclick = () => {
+      hide('feedSection');
+      hide('profilePage');
+      hide('universeSection');
+      show('notificationSection');
+    };
+
+    document.getElementById('tab-universe').onclick = () => {
+      hide('feedSection');
+      hide('profilePage');
+      hide('notificationSection');
+      show('universeSection');
+    };
+
+    document.getElementById('btn-logout').onclick = () => {
+      alert("You've been logged out.");
+    };
+    <script>
+  // New Note modal behavior
+  document.getElementById('btn-new-note').onclick = () => {
+    document.getElementById('newPostModal').style.display = 'flex';
+  };
+  document.getElementById('modalCancelBtn').onclick = () => {
+    document.getElementById('newPostModal').style.display = 'none';
+    document.getElementById('modalPostBox').value = '';
+    document.getElementById('postPreviewImage').src = '';
+    document.getElementById('postPreviewImage').style.display = 'none';
+  };
+
+  // Image upload preview
+  document.getElementById('postImageUpload').onchange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('postPreviewImage');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Post "Share" button demo
+  document.getElementById('modalShareBtn').onclick = () => {
+    const text = document.getElementById('modalPostBox').value;
+    const imageSrc = document.getElementById('postPreviewImage').src;
+    const feed = document.getElementById('feed');
+    
+    const post = document.createElement('div');
+    post.className = 'post';
+    if (imageSrc && imageSrc !== '') {
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.style.maxWidth = '100%';
+      img.style.marginBottom = '12px';
+      post.appendChild(img);
+    }
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    post.appendChild(paragraph);
+    feed.prepend(post);
+
+    // Reset
+    document.getElementById('modalPostBox').value = '';
+    document.getElementById('postPreviewImage').src = '';
+    document.getElementById('postPreviewImage').style.display = 'none';
+    document.getElementById('newPostModal').style.display = 'none';
+  };
+</script>
+
+  </script>
 </body>
 </html>

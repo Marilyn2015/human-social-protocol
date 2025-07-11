@@ -263,7 +263,7 @@
       // Guest access link
       document.getElementById('guest-link').onclick = function(e){
         e.preventDefault();
-        localStorage.setItem('h_username', 'anon_' + Math.random().toString(36).substr(2,5));
+        localStorage.setItem('h_username', + Math.random().toString(36).substr(2,5));
         window.location.href = 'social.html';
       };
 

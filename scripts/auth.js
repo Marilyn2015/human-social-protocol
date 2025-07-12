@@ -18,7 +18,7 @@ const firebaseConfig = {
       projectId: "hashhumanity-58b9a",
       storageBucket: "hashhumanity-58b9a.appspot.com",
       messagingSenderId: "886745899016",
-      appId: "1:886745899016:web:2b07e043c2434379d71bd"ID'
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
 };
 initializeApp(firebaseConfig);
 const auth = getAuth();

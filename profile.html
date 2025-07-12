@@ -1,15 +1,146 @@
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>#HUMANITY Social</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc
+    } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
 
-document.getElementById('saveProfile').addEventListener('click', async () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyBT7P7DAV-I9ESe6r9JdpS1oCyGIKb09J4",
+      authDomain: "hashhumanity-58b9a.firebaseapp.com",
+      projectId: "hashhumanity-58b9a",
+      storageBucket: "hashhumanity-58b9a.appspot.com",
+      messagingSenderId: "886745899016",
+      appId: "1:886745899016:web:2b07e043c2434379d71bd"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        const docSnap = await getDoc(doc(db, "users", user.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById('username').value = data.username || '';
+          document.getElementById('bio').value = data.bio || '';
+          document.getElementById('avatar').src = data.avatar || 'https://www.gravatar.com/avatar/?d=mp';
+        }
+
+        document.getElementById('saveProfile').onclick = async function () {
+          const username = document.getElementById('username').value.trim();
+          const bio = document.getElementById('bio').value.trim();
+          const avatar = document.getElementById('avatar').src;
+          await setDoc(doc(db, "users", user.uid), { username, bio, avatar });
+          alert("Profile saved!");
+        };
+
+        document.getElementById('avatarUpload').addEventListener('change', function () {
+          const file = this.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            document.getElementById('avatar').src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    });
+
+    window.showFollowers = async function () {
+  const container = document.getElementById('dynamicContent');
+  container.innerHTML = '<h2 style="color: #0ff; margin-bottom: 10px;">Followers</h2>';
   const user = auth.currentUser;
-  if (user) {
-    const username = document.getElementById('username').value;
-    const bio = document.getElementById('bio').value;
-    await db.collection('users').doc(user.uid).set({ username, bio }, { merge: true });
-    alert('Profile saved');
-  } else {
-    alert('You must be logged in to save your profile.');
+  if (!user) {
+    container.innerHTML += '<p style="color:#888;">You must be logged in to see followers.</p>';
+    return;
   }
-});
+  const docSnap = await getDoc(doc(db, "users", user.uid));
+  if (!docSnap.exists()) {
+    container.innerHTML += '<p style="color:#888;">No user data found.</p>';
+    return;
+  }
+  const data = docSnap.data();
+  const followers = data.followers || [];
+  if (followers.length === 0) {
+    container.innerHTML += '<p style="color:#888;">You have no followers yet.</p>';
+  } else {
+    container.innerHTML += `<ul style="list-style:none; padding:0;">${followers.map(f => `<li style='margin-bottom:8px; background:#111; padding:10px; border-radius:5px;'>👤 <span style='color:#0ff;'>${f}</span></li>`).join('')}</ul>`;
+  }
+};
+
+    window.showMessages = function (type) {
+      const container = document.getElementById('dynamicContent');
+      container.innerHTML = `
+        <div style="margin-top: 30px; background: rgba(0, 255, 255, 0.07); padding: 20px; border-radius: 10px; box-shadow: 0 0 12px #0ff;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="color: #0ff;">Messages - ${type === 'inbox' ? 'Inbox' : 'Outbox'}</h2>
+            <a href="social.html" style="background: transparent; border: 1px solid #0ff; color: #0ff; padding: 6px 12px; border-radius: 5px; text-decoration: none;">⬅ Back to Feed</a>
+          </div>
+          <div style="margin: 10px 0; display: flex; gap: 10px;">
+            <button onclick="showMessages('inbox')" style="flex: 1; background: #111; border: 1px solid #0ff; color: #0ff; padding: 8px; border-radius: 5px;">Inbox</button>
+            <button onclick="showMessages('outbox')" style="flex: 1; background: #111; border: 1px solid #0ff; color: #0ff; padding: 8px; border-radius: 5px;">Outbox</button>
+            <button onclick="document.getElementById('sendMessageForm').style.display='block'" style="flex: 1; background: #111; border: 1px solid #0ff; color: #0ff; padding: 8px; border-radius: 5px;">New Message</button>
+          </div>
+          <div id="messageList" style="margin-top: 15px;"></div>
+          <form id="sendMessageForm" style="display:none; margin-top: 20px; background: #111; padding: 15px; border-radius: 8px;">
+            <input type="text" placeholder="To" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #222; color: #0ff; border: 1px solid #0ff; border-radius: 5px;" />
+            <textarea placeholder="Your message..." style="width: 100%; padding: 10px; background: #222; color: #0ff; border: 1px solid #0ff; border-radius: 5px; height: 100px; margin-bottom: 10px;"></textarea>
+            <button type="submit" style="background: linear-gradient(45deg, #0ff, #00f); color: #000; font-weight: bold; padding: 10px 20px; border-radius: 5px; border: none;">Send</button>
+          </form>
+        </div>
+      `;
+
+      const inbox = [ { from: 'alice', text: 'Welcome!' }, { from: 'bob', text: 'Hi there!' } ];
+      const outbox = [ { to: 'eve', text: 'Thanks!' }, { to: 'mallory', text: 'Good post!' } ];
+      const messages = (type === 'inbox') ? inbox : outbox;
+      setTimeout(() => {
+        document.getElementById('messageList').innerHTML = messages.map(m => `
+          <div class="message" style="background: #111; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <strong style="color: #0ff;">${type === 'inbox' ? 'From' : 'To'}: ${type === 'inbox' ? m.from : m.to}</strong>
+            <p style="color: #ccc; margin-top: 5px;">${m.text}</p>
+          </div>`).join('');
+      }, 0);
+    }
+
+    window.switchTab = function (tabName) {
+      if (tabName === 'messages') showMessages('inbox');
+    }
+  </script>
+<style>
+  @keyframes glitchBG {
+    0% { background-position: 0 0; filter: brightness(1); }
+    50% { background-position: 10px 5px; filter: brightness(1.1); }
+    100% { background-position: -10px -5px; filter: brightness(1); }
+  }
+</style>
+</head>
+<body style="background-color: #000; color: #0ff; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px; background-image: url('https://www.transparenttextures.com/patterns/asfalt-dark.png'); background-repeat: repeat; animation: glitchBG 3s infinite alternate;">
+  <div class="profile-container" style="background: rgba(0, 255, 255, 0.05); padding: 30px; border-radius: 12px; box-shadow: 0 0 20px #0ff; max-width: 500px; width: 100%; text-align: center;">
+    <h1 style="font-size: 2em; margin-bottom: 20px; color: #0ff;">Edit Your Profile</h1>
+    <img id="avatar" src="https://www.gravatar.com/avatar/?d=mp" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid #0ff; margin-bottom: 10px;">
+    <input type="file" id="avatarUpload" accept="image/*" style="margin-bottom: 15px; color: #0ff;">
+    <input id="username" type="text" placeholder="Username" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #111; color: #0ff; border: 1px solid #0ff; border-radius: 5px;">
+    <textarea id="bio" placeholder="Tell the world about you..." style="width: 100%; padding: 10px; background: #111; color: #0ff; border: 1px solid #0ff; border-radius: 5px; height: 100px; margin-bottom: 20px;"></textarea>
+    <div class="profile-buttons" style="display: flex; flex-direction: column; gap: 10px;">
+      <button id="saveProfile" style="background: linear-gradient(45deg, #0ff, #00f); color: #000; font-weight: bold; padding: 10px; border-radius: 8px; cursor: pointer; border: none;">Save Profile</button>
+      <button onclick="switchTab('messages')" style="background: linear-gradient(45deg, #0ff, #00f); color: #000; font-weight: bold; padding: 10px; border-radius: 8px; cursor: pointer; border: none;">Messages</button>
+      <button onclick="showFollowers()" style="background: linear-gradient(45deg, #0ff, #00f); color: #000; font-weight: bold; padding: 10px; border-radius: 8px; cursor: pointer; border: none;">Followers</button>
+    </div>
+  </div>
+  <div id="dynamicContent" style="margin-top: 20px; max-width: 600px; width: 100%;"></div>
+  <a href="social.html" style="margin-top: 30px; text-align: center; background: linear-gradient(45deg, #0ff, #00f); color: #000; font-weight: bold; padding: 12px 24px; border-radius: 8px; border: none; text-decoration: none; box-shadow: 0 0 10px #0ff;">⬅ Return to #HUMANITY</a>
+</body>
+</html>

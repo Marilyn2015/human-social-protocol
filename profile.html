@@ -1,96 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Profile | #HUMANITY</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background: #000;
-      color: #e0e0e0;
-      font-family: 'Courier New', monospace;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-      text-align: center;
-    }
-    h1 {
-      color: #0ff;
-      margin-bottom: 20px;
-    }
-    img#avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 2px solid #0ff;
-      margin-bottom: 12px;
-    }
-    input, textarea, button {
-      display: block;
-      width: 90%;
-      max-width: 400px;
-      margin: 10px auto;
-      padding: 10px;
-      background: #111;
-      color: #fff;
-      border: 1px solid #0ff;
-      border-radius: 4px;
-    }
-    button:hover {
-      background: #0ff;
-      color: #000;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <h1>Your Profile</h1>
-  <img id="avatar" src="" alt="Avatar">
-  <input type="file" id="avatarUpload" accept="image/*">
-  <input type="text" id="username" placeholder="Username">
-  <textarea id="bio" placeholder="Tell us something about you..."></textarea>
-  <button id="saveBtn">Save Profile</button>
-  <button onclick="window.location.href='messages.html'">Go to Messages</button>
-  <button onclick="window.location.href='social.html'">← Back to Social</button>
-  <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
-<script>
-  document.getElementById('btn-profile-page').addEventListener('click', () => {
-    window.location.href = 'profile.html';
-  });
-</script>
-  <script>
-    const avatar = document.getElementById('avatar');
-    const usernameInput = document.getElementById('username');
-    const bioInput = document.getElementById('bio');
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-    function loadProfile() {
-      const name = localStorage.getItem('h_username') || 'Anonymous';
-      const bio = localStorage.getItem('h_bio') || '';
-      const pic = localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp';
-
-      usernameInput.value = name;
-      bioInput.value = bio;
-      avatar.src = pic;
-    }
-
-    document.getElementById('avatarUpload').addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        avatar.src = e.target.result;
-        localStorage.setItem('h_avatar', e.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      localStorage.setItem('h_username', usernameInput.value.trim());
-      localStorage.setItem('h_bio', bioInput.value.trim());
-      alert('Profile saved!');
-    });
-
-    loadProfile();
-  </script>
-</body>
-</html>
+document.getElementById('saveProfile').addEventListener('click', async () => {
+  const user = auth.currentUser;
+  if (user) {
+    const username = document.getElementById('username').value;
+    const bio = document.getElementById('bio').value;
+    await db.collection('users').doc(user.uid).set({ username, bio }, { merge: true });
+    alert('Profile saved');
+  } else {
+    alert('You must be logged in to save your profile.');
+  }
+});

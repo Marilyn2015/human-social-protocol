@@ -176,7 +176,7 @@
               <div style="font-size:1.3rem; color:#0ff;"><strong id="profile-username">${user}</strong></div>
               <div id="profileBio">${bio ? DOMPurify.sanitize(bio) : "<span style='color:#888;'>No bio yet.</span>"}</div>
               <button id="editProfileTabBtn">Edit Profile</button>
-              <button id="sendMsgBtn">Send Message</button>
+              <button id="sendMsgBtn">Message</button>
             </div>
           </div>
           <div style="margin:18px 0 0 0;"><button id="btn-back">Back</button></div>
@@ -231,7 +231,7 @@
       document.getElementById('btn-logout').addEventListener('click', () => {
         // Only remove username, not all data
         localStorage.removeItem('h_username');
-        window.location.href = 'index.html';
+        window.location.href = 'profile.html';
       });
       ['following','universe','messages','notifications'].forEach(tab => {
         document.getElementById('tab-' + tab).addEventListener('click', () => {

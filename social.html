@@ -5,269 +5,295 @@
   <title>#HUMANITY Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-  <style>
-    #newPostModal, #editProfileModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
-    #newPostModal .modal-content, #editProfileModal .modal-content { background: #111; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
-    #editProfileModal input[type="file"] { background: #222; color: #fff; }
-    .active-tab { background: #0ff; color: #000; }
-    #tabButtons { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 20px; }
-    body { background: #000; color: #e0e0e0; font-family: Tahoma, sans-serif; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
-    h1 { text-align: center; color: #fff; font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 8px #0ff; }
-    button { background: #000; color: #fff; border: 1px solid #0ff; border-radius: 4px; padding: 0 12px; height: 40px; cursor: pointer; box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff; transition: .2s; display: inline-flex; align-items: center; justify-content: center; }
-    button img.nav-avatar { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; }
-    button:hover { background: #0ff; color: #000; }
-    textarea, input[type="text"] { width: 100%; background: #0a0a0a; color: #fff; border: 1px solid #444; padding: 12px; margin: 12px 0; border-radius: 4px; box-sizing: border-box; resize: vertical; }
-    input[type="text"] { height: 36px; }
-    .post, .message-item, .notification-item { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 16px; border-radius: 6px; }
-    .meta { font-size: .75rem; color: #888; margin-bottom: 8px; display: flex; align-items: center; }
-    .meta img { width: 24px; height: 24px; border-radius: 50%; margin-right: 8px; border: 1px solid #0ff; }
-    .post-content { line-height: 1.4; }
-    .post-actions { margin-top: 8px; display: flex; gap: 8px; }
-    .action-btn { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; }
-    #userInfo { display: none; flex-direction: column; align-items: center; margin-bottom: 20px; }
-    #profileAvatar, #profile-page img.nav-avatar, #editProfileAvatar, #avatarPreview { width: 64px; height: 64px; border-radius: 50%; border: 2px solid #0ff; object-fit: cover; margin-bottom: 8px; }
-    #profileName { font-size: 1.2rem; color: #0ff; }
-    #profilePage { display: none; }
-    #profileBio { margin: 10px 0 20px 0; color: #b2e7f9; }
-    #editProfileTabBtn { margin-bottom: 12px; }
-    .guest-link { color: #0ff; text-align:center; margin-top: 16px; display: block; cursor: pointer; }
+<style>
+    body {
+      background: #000;
+      color: #e0e0e0;
+      font-family: Tahoma, sans-serif;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #fff;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #0ff;
+    }
+    button {
+      background: #000;
+      color: #fff;
+      border: 1px solid #0ff;
+      border-radius: 4px;
+      padding: 0 12px;
+      height: 40px;
+      cursor: pointer;
+      box-shadow: 0 0 5px #0ff, inset 0 0 3px #0ff;
+      transition: .2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button:hover {
+      background: #0ff;
+      color: #000;
+    }
+    .post {
+      background: #111;
+      border: 1px solid #333;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+    .meta {
+      font-size: .75rem;
+      color: #888;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+    .meta img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 1px solid #0ff;
+    }
+    #profilePage {
+      display: none;
+      padding: 20px;
+      border: 1px solid #0ff;
+      border-radius: 12px;
+      background: radial-gradient(circle at top left, #0ff2, #000);
+      margin-top: 20px;
+      color: #e0e0e0;
+      box-shadow: 0 0 20px #0ff6;
+    }
+    .profile-box {
+      background: #111;
+      padding: 16px;
+      border: 1px solid #0ff;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .profile-box input[type="file"] {
+      margin: 12px 0;
+      color: #fff;
+      border: 1px solid #0ff;
+    }
+    .profile-box textarea,
+    .profile-box input[type="text"] {
+      background: #000;
+      border: 1px solid #0ff;
+      color: #0ff;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 8px 0;
+      width: 100%;
+    }
+    .profile-box img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #0ff;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+    #newPostModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    #newPostModal .modal-content {
+      background: #111;
+      border: 1px solid #0ff;
+      padding: 30px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #0ff8;
+    }
+    #newPostModal h3 {
+      color: #0ff;
+      font-size: 1.6rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #newPostModal textarea {
+      width: 100%;
+      height: 150px;
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 1rem;
+    }
+    #newPostModal input[type="file"] {
+      width: 100%;
+      background: #111;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+    #newPostModal .modal-actions {
+      text-align: right;
+      margin-top: 20px;
+    }
+    .message-box {
+      margin-top: 20px;
+      background: #111;
+      border: 1px solid #0ff;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .message-box h4 {
+      color: #0ff;
+      margin-bottom: 10px;
+    }
+    .message-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .message-box li {
+      margin-bottom: 6px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+    }
   </style>
 </head>
 <body>
   <h1>#HUMANITY</h1>
-  <div id="userInfo">
-    <img id="profileAvatar" src="" alt="Avatar">
-    <span id="profileName"></span>
+  <div id="feedSection">
+    <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 12px;">
+      <button id="btn-profile-page">👤 Profile</button>
+      <button id="btn-new-post">📝 New Post</button>
+      <button id="btn-universe">🌌 Universe</button>
+    </div>
+    <div id="feed"></div>
   </div>
-  <div id="tabButtons">
-    <button id="btn-profile-page"><img src="" class="nav-avatar" alt="Avatar"></button>
-    <button id="btn-new-note">New Note</button>
-    <button id="tab-following">Following</button>
-    <button id="tab-notifications">Notifications</button>
-    <button id="tab-universe">Universe</button>
-  </div>
+  <div id="profilePage"></div>
   <div id="newPostModal">
     <div class="modal-content">
-      <h3>New Note</h3>
-      <textarea id="modalPostBox" placeholder="Write your note..." style="width:100%;height:120px;"></textarea>
-      <div class="button-group">
-        <button id="modalShareBtn">Share</button>
-        <button id="modalCancelBtn" type="button">Cancel</button>
+      <h3>🧠 Feed the human feed...</h3>
+      <textarea id="postText" placeholder="Write something thoughtful, curious, or powerful..."></textarea>
+      <input type="file" id="postImage" accept="image/*">
+      <div class="modal-actions">
+        <button id="submitPost">Share</button>
+        <button id="cancelPost">Cancel</button>
       </div>
     </div>
   </div>
-  <div id="editProfileModal">
-    <div class="modal-content">
-      <h3>Edit Profile</h3>
-      <input id="avatarUpload" type="file" accept="image/*">
-      <img id="avatarPreview" src="" alt="Avatar Preview" style="display:block; margin:12px auto;">
-      <input id="editUsername" type="text" maxlength="32" placeholder="Username">
-      <textarea id="editBio" maxlength="180" placeholder="About/Bio"></textarea>
-      <div style="text-align:right;">
-        <button id="saveProfileBtn">Save</button>
-        <button id="cancelProfileBtn" type="button">Cancel</button>
-      </div>
-    </div>
-  </div>
-  <div id="feedSection"><h2>Latest:</h2><div id="feed"></div></div>
-  <div id="profilePage"></div>
-  <div><button id="btn-logout">Logout</button></div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      function getCurrentUser() {
-        let u = localStorage.getItem('h_username');
-        if (!u) {
-          u = 'anon_' + Math.random().toString(36).substr(2,5);
-          localStorage.setItem('h_username', u);
-        }
-        return u;
-      }
-      function getAvatar() {
-        return localStorage.getItem('h_avatar') || 'https://www.gravatar.com/avatar/?d=mp&s=64';
-      }
-      function getBio() {
-        return localStorage.getItem('h_bio') || '';
-      }
-      function setAvatar(url) { localStorage.setItem('h_avatar', url); }
-      function setUsername(u) { localStorage.setItem('h_username', u); }
-      function setBio(b) { localStorage.setItem('h_bio', b); }
+      const avatarUrl = 'https://www.gravatar.com/avatar/?d=mp&s=64';
+      const user = localStorage.getItem('h_username') || 'guest';
+      const feedContainer = document.getElementById('feed');
 
-      let user = getCurrentUser();
-      let avatarUrl = getAvatar();
-      document.getElementById('profileName').textContent = user;
-      document.getElementById('profileAvatar').src = avatarUrl;
-      document.querySelector('#btn-profile-page img').src = avatarUrl;
-
-      let currentTab = 'following';
-      const followingList = JSON.parse(localStorage.getItem('following') || '[]');
-      if (!localStorage.getItem('notes')) {
-        const now = Date.now();
-        const mock = [
-          { user: 'alice', avatar: avatarUrl, note: 'Hello from Alice!', timestamp: now - 600000, likes: 1 },
-          { user: 'bob', avatar: avatarUrl, note: 'Bob says hi to the #HUMANITY community.', timestamp: now - 300000, likes: 2 },
-          { user, avatar: avatarUrl, note: 'My personal note here.', timestamp: now - 100000, likes: 0 }
+      document.getElementById('btn-universe').addEventListener('click', () => {
+        feedContainer.innerHTML = '';
+        const allNotes = [
+          { user: 'alice', avatar: avatarUrl, note: 'Hello from Alice!' },
+          { user: 'bob', avatar: avatarUrl, note: 'Checking in from the feed.' },
+          { user: user, avatar: avatarUrl, note: 'This is my latest broadcast to the universe.' }
         ];
-        localStorage.setItem('notes', JSON.stringify(mock));
-      }
-
-      function loadFeed() {
-        const feed = document.getElementById('feed'); feed.innerHTML = '';
-        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-        const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
-        const displayed = currentTab === 'following'
-          ? sorted.filter(n => followingList.includes(n.user))
-          : sorted;
-        displayed.forEach((n, idx) => {
-          const d = document.createElement('div'); d.className = 'post';
+        allNotes.forEach(n => {
+          const d = document.createElement('div');
+          d.className = 'post';
           d.innerHTML = `
-            <div class="meta"><img src="${DOMPurify.sanitize(n.avatar)}"><strong>${DOMPurify.sanitize(n.user)}</strong></div>
-            <div class="post-content">${DOMPurify.sanitize(n.note)}</div>
-            <div class="post-actions">
-              <button class="action-btn" data-user="${n.user}" data-idx="${idx}" data-action="like">🙌<span class="like-count">${n.likes}</span></button>
-              <button class="action-btn" data-user="${n.user}" data-action="follow">➕</button>
-              <button class="action-btn" data-user="${n.user}" data-action="coin">🪙</button>
-              <button class="action-btn" data-user="${n.user}" data-action="mute">🔇</button>
-            </div>
+            <div class="meta"><img src="${n.avatar}"><strong>${n.user}</strong></div>
+            <div class="post-content">${n.note}</div>
           `;
-          feed.appendChild(d);
+          feedContainer.appendChild(d);
         });
-      }
+      });
 
-      // Like button support (event delegation)
-      document.getElementById('feed').addEventListener('click', function(e){
-        const btn = e.target.closest('.action-btn');
-        if (!btn) return;
-        if (btn.dataset.action === 'like') {
-          const idx = +btn.dataset.idx;
-          let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-          // sort as in loadFeed
-          const sorted = notes.sort((a,b) => b.timestamp - a.timestamp);
-          const post = sorted[idx];
-          if (post) {
-            post.likes = (post.likes || 0) + 1;
-            // Update in master array
-            const masterNotes = JSON.parse(localStorage.getItem('notes') || '[]');
-            const masterIdx = masterNotes.findIndex(n =>
-              n.user === post.user &&
-              n.note === post.note &&
-              n.timestamp === post.timestamp
-            );
-            if (masterIdx > -1) {
-              masterNotes[masterIdx].likes = post.likes;
-              localStorage.setItem('notes', JSON.stringify(masterNotes));
-            }
-          }
-          loadFeed();
+      document.getElementById('btn-profile-page').addEventListener('click', () => {
+        document.getElementById('feedSection').style.display = 'none';
+        const profile = document.getElementById('profilePage');
+        profile.style.display = 'block';
+        profile.innerHTML = `
+          <h2 style="text-shadow: 0 0 4px #0ff;">${user}'s Profile</h2>
+          <div class="profile-box">
+            <img src="${avatarUrl}" alt="Profile Avatar">
+            <input type="file" accept="image/*">
+            <input type="text" value="${user}" placeholder="Username">
+            <textarea placeholder="Bio">No bio set yet.</textarea>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+            <button onclick="const f=document.getElementById('followingBox'); if(f){f.style.display='block';}">Following</button>
+            <button onclick="const m=document.getElementById('messageBox'); if(m){m.style.display='block';}">Messages</button>
+          </div>
+          <div id="messageBox" class="message-box" style="display:none;">
+            <h4>📥 Inbox</h4>
+            <ul>
+              <li><strong>Alice:</strong> Hey there! Loved your last post.</li>
+              <li><strong>Bob:</strong> Let's connect soon!</li>
+            </ul>
+            <h4>📤 Outbox</h4>
+            <ul>
+              <li><strong>To Charlie:</strong> Thanks for the feedback!</li>
+              <li><strong>To Dana:</strong> Catching up later?</li>
+            </ul>
+          </div>
+          <div id="followingBox" class="message-box" style="display:none;">
+            <h4>👥 Following</h4>
+            <ul>
+              <li><strong>NovaStark</strong> – Cybersecurity Guru</li>
+              <li><strong>PhoenixRising</strong> – Poet and Dreamer</li>
+              <li><strong>HashNode42</strong> – Protocol Architect</li>
+            </ul>
+          </div>
+          <button onclick="location.reload()">⬅ Back to Feed</button>
+        `;
+      });
+
+      const newPostModal = document.getElementById('newPostModal');
+      document.getElementById('btn-new-post').addEventListener('click', () => {
+        newPostModal.style.display = 'flex';
+      });
+      document.getElementById('cancelPost').addEventListener('click', () => {
+        newPostModal.style.display = 'none';
+      });
+      document.getElementById('submitPost').addEventListener('click', () => {
+        const postText = document.getElementById('postText').value;
+        const fileInput = document.getElementById('postImage');
+        const file = fileInput.files[0];
+        let imgTag = '';
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            imgTag = `<img src="${e.target.result}" style="max-width:100%; margin-top:10px;">`;
+            appendPost(postText, imgTag);
+            newPostModal.style.display = 'none';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          appendPost(postText, '');
+          newPostModal.style.display = 'none';
         }
       });
 
-      function showProfile() {
-        document.getElementById('feedSection').style.display = 'none';
-        document.getElementById('tabButtons').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'flex';
-        user = getCurrentUser();
-        avatarUrl = getAvatar();
-        let bio = getBio();
-        const notes = JSON.parse(localStorage.getItem('notes') || '[]').filter(n => n.user === user);
-        let html = `
-          <div style="display:flex; align-items:center; gap:18px;">
-            <img src="${avatarUrl}" id="editProfileAvatar" alt="Profile" style="margin-bottom:0;">
-            <div>
-              <div style="font-size:1.3rem; color:#0ff;"><strong id="profile-username">${user}</strong></div>
-              <div id="profileBio">${bio ? DOMPurify.sanitize(bio) : "<span style='color:#888;'>No bio yet.</span>"}</div>
-              <button id="editProfileTabBtn">Edit Profile</button>
-              <button id="sendMsgBtn">Message</button>
-            </div>
-          </div>
-          <div style="margin:18px 0 0 0;"><button id="btn-back">Back</button></div>
-          <hr>
-          <h3>Your Notes:</h3>
-          ${notes.map(n => `<div class="post"><div class="post-content">${DOMPurify.sanitize(n.note)}</div></div>`).join('')}
+      function appendPost(text, imageHtml) {
+        const d = document.createElement('div');
+        d.className = 'post';
+        d.innerHTML = `
+          <div class="meta"><img src="${avatarUrl}"><strong>${user}</strong></div>
+          <div class="post-content">${text}${imageHtml}</div>
         `;
-        document.getElementById('profilePage').innerHTML = html;
-        document.getElementById('profilePage').style.display = 'block';
-        document.getElementById('btn-back').onclick = () => {
-          document.getElementById('profilePage').style.display = 'none';
-          document.getElementById('userInfo').style.display = 'none';
-          document.getElementById('tabButtons').style.display = 'flex';
-          document.getElementById('feedSection').style.display = 'block';
-        };
-        document.getElementById('editProfileTabBtn').onclick = showEditProfileModal;
-        document.getElementById('sendMsgBtn').onclick = () => {
-          alert('Direct messaging coming soon!');
-        };
+        feedContainer.prepend(d);
       }
-
-      function showEditProfileModal() {
-        document.getElementById('editProfileModal').style.display = 'flex';
-        document.getElementById('editUsername').value = getCurrentUser();
-        document.getElementById('editBio').value = getBio();
-        document.getElementById('avatarPreview').src = getAvatar();
-      }
-      document.getElementById('saveProfileBtn').onclick = () => {
-        // Save username, bio, avatar
-        const newUsername = document.getElementById('editUsername').value.trim() || 'anon_' + Math.random().toString(36).substr(2,5);
-        const newBio = document.getElementById('editBio').value.trim();
-        setUsername(newUsername);
-        setBio(newBio);
-        document.getElementById('editProfileModal').style.display = 'none';
-        location.reload();
-      };
-      document.getElementById('cancelProfileBtn').onclick = () => {
-        document.getElementById('editProfileModal').style.display = 'none';
-      };
-      document.getElementById('avatarUpload').addEventListener('change', function(){
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e){
-          setAvatar(e.target.result);
-          document.getElementById('avatarPreview').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-
-      document.getElementById('btn-profile-page').addEventListener('click', showProfile);
-      document.getElementById('btn-logout').addEventListener('click', () => {
-        // Only remove username, not all data
-        localStorage.removeItem('h_username');
-        window.location.href = 'profile.html';
-      });
-      ['following','universe','messages','notifications'].forEach(tab => {
-        document.getElementById('tab-' + tab).addEventListener('click', () => {
-          currentTab = tab;
-          document.querySelectorAll('#tabButtons button').forEach(btn => btn.classList.remove('active-tab'));
-          document.getElementById('tab-' + tab).classList.add('active-tab');
-          document.getElementById('profilePage').style.display = 'none';
-          loadFeed();
-        });
-      });
-      document.querySelector('#newPostModal').style.display = 'none';
-      document.getElementById('btn-new-note').addEventListener('click', () => document.getElementById('newPostModal').style.display = 'flex');
-
-      const cancelBtn = document.getElementById('modalCancelBtn');
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => document.getElementById('newPostModal').style.display = 'none');
-      }
-
-      document.getElementById('modalShareBtn').addEventListener('click', () => {
-        const txt = document.getElementById('modalPostBox').value.trim(); if (!txt) return;
-        const notesArr = JSON.parse(localStorage.getItem('notes') || '[]');
-        notesArr.unshift({ user: getCurrentUser(), avatar: getAvatar(), note: txt, timestamp: Date.now(), likes: 0 });
-        localStorage.setItem('notes', JSON.stringify(notesArr));
-        document.getElementById('modalPostBox').value = '';
-        document.getElementById('newPostModal').style.display = 'none';
-        loadFeed();
-      });
-
-      // Guest access link
-      document.getElementById('guest-link').onclick = function(e){
-        e.preventDefault();
-        localStorage.setItem('h_username', + Math.random().toString(36).substr(2,5));
-        window.location.href = 'social.html';
-      };
-
-      loadFeed();
     });
   </script>
 </body>
